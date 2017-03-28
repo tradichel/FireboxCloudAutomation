@@ -1,0 +1,19 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Firebox Cloud Template"
+Resources:
+  Firebox: 
+    Type: "AWS::EC2::Instance"
+    Properties: 
+      ImageId: 
+        "ami-ac1798cc"
+      InstanceType:
+        "c4.large"
+      KeyName: 
+        "tr"
+      NetworkInterfaces: 
+        - AssociatePublicIpAddress: "true"
+          DeviceIndex: "0"
+          GroupSet: 
+            - "sg-337b674b"
+          SubnetId: 
+            "subnet-ace57ccb"
