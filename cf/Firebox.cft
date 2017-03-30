@@ -8,8 +8,6 @@ Resources:
         "ami-ac1798cc"
       InstanceType:
         "c4.large"
-      KeyName: 
-        "tr"
       NetworkInterfaces: 
         - AssociatePublicIpAddress: "true"
           DeviceIndex: "0"
