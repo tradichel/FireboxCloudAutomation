@@ -16,9 +16,12 @@ Resources:
       SecurityGroupEgress:
       - CidrIp: 0.0.0.0/0
         IpProtocol: "-1"
+      SecurityGroupIngress:
+      - CidrIp: 0.0.0.0/0
+        IpProtocol: "-1"
       VpcId: 
         Ref: FireboxVPC
-  FireboxSubnet1:
+  FireboxSubnet:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: 
@@ -26,16 +29,7 @@ Resources:
       CidrBlock: 10.0.0.0/24
       Tags:
       - Key: Name
-        Value: FireboxSubnet2
-  FireboxSubnet2:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: 
-        Ref: FireboxVPC
-      CidrBlock: 10.0.1.0/24
-      Tags:
-      - Key: Name
-        Value: FireboxSubnet2
+        Value: FireboxSubnet
   LogRole:
     Type: AWS::IAM::Role
     Properties:
@@ -79,3 +73,12 @@ Resources:
         Ref: FireboxVPC
       ResourceType : "VPC"
       TrafficType : "ALL"
+Outputs:
+  FireboxSecurityGroup:
+    Value: !Ref FireboxSecurityGroup
+    Export:
+      Name: "FireboxSecurityGroup"
+  FireboxSubnet1:
+    Value: !Ref FireboxSubnet
+    Export:
+      Name: "FireboxSubnet"

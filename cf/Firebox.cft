@@ -1,5 +1,13 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: "Firebox Cloud Template"
+Parameters: 
+  InstanceTypeParameter: 
+    Type: String
+    Default: c4.large
+    AllowedValues: 
+      - c4.large
+    Description: Enter allowed instance type.
+
 Resources:
   Firebox: 
     Type: "AWS::EC2::Instance"
@@ -12,6 +20,6 @@ Resources:
         - AssociatePublicIpAddress: "true"
           DeviceIndex: "0"
           GroupSet: 
-            - "sg-337b674b"
+            - !ImportValue FireboxSecurityGroup
           SubnetId: 
-            "subnet-ace57ccb"
+            !ImportValue FireboxSubnet
