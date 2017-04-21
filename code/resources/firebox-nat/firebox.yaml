@@ -1,0 +1,31 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Firebox Cloud Template"
+Parameters: 
+  InstanceTypeParameter: 
+    Type: String
+    Default: c4.large
+    AllowedValues: 
+      - c4.large
+    Description: Choose an allowed instance type.
+Resources:
+  Firebox: 
+    Type: "AWS::EC2::Instance"
+    Properties: 
+      ImageId: 
+        "ami-ac1798cc"
+      InstanceType:
+        "c4.large"
+      SourceDestCheck:
+        false
+      NetworkInterfaces: 
+        - AssociatePublicIpAddress: "true"
+          DeviceIndex: "0"
+          GroupSet: 
+            - !ImportValue FireboxSecurityGroup
+          SubnetId: 
+            !ImportValue FireboxSubnet
+    FireboxElasticIP:
+      Type: AWS::EC2::EIP
+      Properties:
+        InstanceId: 
+          Ref: Firebox
