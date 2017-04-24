@@ -1,12 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: "Firebox Cloud Subnets"
-#TODO: add internet gateway to public subnet
-#TODO: All traffic out of Interent goes through NAT with rule like this
-#0.0.0.0/0 eni-4e411442 / i-07da727c3da17a529
-#TODO: create eni that has public EIP attached, source/dest false, delete on termination = true
-#Associated with firebox EC2
-#eth0 = public subnet
-#eth1 = private subnet
 Parameters: 
   ParamStackName: 
     Type: String

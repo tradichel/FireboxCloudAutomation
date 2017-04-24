@@ -26,35 +26,24 @@ Resources:
         Ref: ParamFireboxAMI
       InstanceType:
         Ref: ParamInstanceType
-      SourceDestCheck:
-        false
-  FireboxPrivateNetworkInterface:
-    Type: "AWS::EC2::NetworkInterface"
-    Properties: 
-      Description: FireboxPrivateNetworkInterface
-      GroupSet:
-        - !ImportValue FireboxSecurityGroup
-      SourceDestCheck: False
-      SubnetId: 
-        !ImportValue FireboxPrivateSubnet
-  FireboxPrivateENIAttachment:
-    Type: "AWS::EC2::NetworkInterfaceAttachment"
-    Properties: 
-      DeleteOnTermination: true
-      DeviceIndex: "0"
-      InstanceId: 
-        Ref: Firebox
-      NetworkInterfaceId: 
-        Ref: FireboxPrivateNetworkInterface
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: false
+          Description: Firebox Private Network Interface
+          DeviceIndex: "0"
+          GroupSet: 
+            - !ImportValue FireboxSecurityGroup
+          SubnetId: 
+            !ImportValue FireboxPrivateSubnet
+          DeleteOnTermination: true
   FireboxPublicNetworkInterface:
     Type: "AWS::EC2::NetworkInterface"
     Properties: 
       Description: Firebox Public Network Interface
       GroupSet:
         - !ImportValue FireboxSecurityGroup
-      SourceDestCheck: False
       SubnetId: 
         !ImportValue FireboxPublicSubnet
+      SourceDestCheck: false
   FireboxPublicENIAttachment:
     Type: "AWS::EC2::NetworkInterfaceAttachment"
     Properties: 
@@ -66,13 +55,11 @@ Resources:
         Ref: FireboxPublicNetworkInterface 
   FireboxElasticIP:
     Type: AWS::EC2::EIP
-    Properties:
-      InstanceId: 
-        Ref: Firebox
   FireboxEIPAssociation:
     Type: "AWS::EC2::EIPAssociation"
     Properties:
-      AllocationId: String
+      InstanceId:
+        Ref: Firebox
       EIP: 
         Ref: FireboxElasticIP
       NetworkInterfaceId:

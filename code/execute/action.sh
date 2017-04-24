@@ -1,27 +1,30 @@
 #!/bin/sh
 action=$1; config=$2 name=$3
+rollback_attempts=0
 
 function check_exit_code () { 
-    exitcode=$1;stack=$2;
+    exitcode=$1;stack=$2;template=$3;
     if [ -f $stack.txt ]; then rm $stack.txt; fi
     if (( $exitcode==3 )); then exit; fi 
-    if (( $exitcode==2 )); then delete_rollback_stack $stack; fi
+    if (( $exitcode==2 )); then delete_rollback_stack $stack $template; fi
 }
 
 function delete_rollback_stack () {
-    stack = $1;action="delete"
-    ./execute/run_template.sh $action $stack
-    exitcode=$?
-    check_exit_code $exitcode $stack
-    action="create"
-    run_template $action $stack $template
+    action="delete";stack=$1;template=$2
+    if (( $rollback_attempts==0 ))
+    then
+        rollback_attempts=1
+        run_template $action $stack
+        action="create"
+        run_template $action $stack $template
+    fi
 }
 
 function run_template () {
 
     action=$1;stack=$2;template=$3
-    aws cloudformation describe-stacks --stack-name $1 > $1.txt  2>&1      
-    exists=$(./execute/get_value.sh $1.txt "StackId")
+    aws cloudformation describe-stacks --stack-name $stack > $stack.txt  2>&1      
+    exists=$(./execute/get_value.sh $stack.txt "StackId")
 
     if [ "$exists" != "" ] && [ "$action" == "create" ]
       then action="update"
@@ -40,16 +43,16 @@ function run_template () {
     echo "$action $stack complete"
     ./execute/run_template.sh $action $stack $template
     exitcode=$?
-    check_exit_code $exitcode $stack
-    wait_to_complete $exitcode $action $stack
+    check_exit_code $exitcode $stack $template
+    wait_to_complete $exitcode $action $stack $template
 }
 
 function wait_to_complete () {
-    exitcode=$1; action=$2; stack=$3
+    exitcode=$1; action=$2; stack=$3; template=$4
     if (( $exitcode==0 ))
     then 
-        ./execute/wait.sh $action $stack 
-        check_exit_code $?
+        ./execute/wait.sh $action $stack $template 
+        check_exit_code $? $stack $template
         echo $action $3 "complete" >> log.txt
     fi
 }
@@ -76,21 +79,18 @@ fireboxstack="firebox-$name"
 
 if [ "$action" != "create" ] && [ "$action" != "delete" ] && [ "$action" != "update" ]
 then
-    echo "* Nothing was run because action is not 'create', 'update', or 'delete'"
+    echo "* Action must be 'create', 'update', or 'delete'"
     exit
 fi
 
 if [ "$action" == "create" ] || [ "$action" == "update" ]
 then
-
     run_template $action $vpcstack $vpc
     run_template $action $igstack $internetgateway
     run_template $action $subnetstack $subnets
     run_template $action $sgstack $securitygroups
     run_template $action $fireboxstack $firebox
-
 else #reverse on delete
-
     run_template $action $fireboxstack 
     run_template $action $subnetstack
     run_template $action $sgstack 
