@@ -4,8 +4,8 @@ About This Repo:
 
     Deploy a Firebox Cloud in Your AWS Account.
 
-    Firebox Cloud ~
-    https://aws.amazon.com/marketplace/pp/B06XJ9NQY3?qid=1489541285919&sr=0-3630&ref_=srh_res_product_image
+    [Firebox Cloud Documentation](https://aws.amazon.com/marketplace/pp/B06XJ9NQY3?qid=1489541285919&sr=0-3630&ref_=srh_res_product_image)
+    
 
 Before You Run This Script:
 
