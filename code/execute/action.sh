@@ -68,6 +68,8 @@ internetgateway="file://./resources/firebox-nat/internetgateway.yaml"
 subnets="file://./resources/firebox-nat/subnets.yaml"
 securitygroups="file://./resources/firebox-nat/securitygroups.yaml"
 firebox="file://resources/firebox-nat/firebox.yaml"
+elasticip="file://resources/firebox-nat/elasticip.yaml"
+natroute="file://resources/firebox-nat/natroute.yaml"
 #config="file://resources/firebox-nat/config.xml"
 
 #cloudformation stack names
@@ -76,6 +78,8 @@ subnetstack="subnets-$name"
 sgstack="securitygroups-$name"
 igstack="internetgateway-$name"
 fireboxstack="firebox-$name"
+elasticipstack="elasticip-$name"
+natroutestack="natroute-$name"
 
 if [ "$action" != "create" ] && [ "$action" != "delete" ] && [ "$action" != "update" ]
 then
@@ -90,8 +94,12 @@ then
     run_template $action $subnetstack $subnets
     run_template $action $sgstack $securitygroups
     run_template $action $fireboxstack $firebox
+    run_template $action $elasticipstack $elasticip
+    run_template $action $natroutestack $natroute
 else #reverse on delete
     run_template $action $fireboxstack 
+    run_template $action $elasticipstack
+    run_template $action $natroutestack 
     run_template $action $subnetstack
     run_template $action $sgstack 
     run_template $action $igstack

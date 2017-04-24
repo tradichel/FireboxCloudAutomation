@@ -94,3 +94,11 @@ Outputs:
     Value: !Ref FireboxPublicSubnet
     Export:
       Name: "FireboxPublicSubnet"
+  FireboxPublicRouteTable:
+    Value: !Ref FireboxPublicRouteTable
+    Export:
+      Name: "FireboxPublicRouteTable"
+  FireboxPrivateRouteTable:
+    Value: !Ref FireboxPrivateRouteTable
+    Export:
+      Name: "FireboxPrivateRouteTable"

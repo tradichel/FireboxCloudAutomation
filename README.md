@@ -53,6 +53,13 @@ More about Firebox Cloud:
     Some resellers sell on Amazon:
     https://www.amazon.com/s/ref=nb_sb_noss_1?url=search-alias%3Daps&field-keywords=watchguard
 
+Notes:
+
+    - You might want tighter networking rules but this will get you started...
+    - Still need to auto-deploy configuration
+    - One of other possible configurations to be added later
+    - More secure to deploy through automated build system ~ more on that later
+
 Questions?
 
     @teriradichel

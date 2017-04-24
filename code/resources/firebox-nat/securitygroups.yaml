@@ -5,16 +5,30 @@ Parameters:
     Type: String
     Default: "firebox-trial"
     Description: "Name used in resource tags and names"
+  ParamAllowedInboundToInstances:
+    Type: String
+    Default: "0.0.0.0/0"
+    Description: "Inbound traffic allowed to instances from this CIDR"
+  ParamAllowedInboundToFirebox:
+    Type: String
+    Default: "0.0.0.0/0"
+    Description: "Inbound traffic allowed to Firebox from this CIDR"
+  ParamAllowedOutboundFromFirebox:
+    Type: String
+    Default: "0.0.0.0/0"
+    Description: "Outbound traffic allowed instiated from Firebox to this CIDR"
 Resources:
   FireboxSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: "Firebox Security Group"
       SecurityGroupEgress:
-      - CidrIp: 0.0.0.0/0
+      - CidrIp: 
+          Ref: ParamAllowedOutboundFromFirebox
         IpProtocol: "-1"
       SecurityGroupIngress:
-      - CidrIp: 0.0.0.0/0
+      - CidrIp: 
+          Ref: ParamAllowedInboundToFirebox
         IpProtocol: "-1"
       VpcId: 
         !ImportValue FireboxVPC
@@ -29,10 +43,12 @@ Resources:
     Properties:
       GroupDescription: "Instance Security Group"
       SecurityGroupEgress:
-      - CidrIp: 0.0.0.0/0
+      - DestinationSecurityGroupId:
+          Ref: FireboxSecurityGroup
         IpProtocol: "-1"
       SecurityGroupIngress:
-      - CidrIp: 0.0.0.0/0
+      - CidrIp: 
+          Ref: ParamAllowedInboundToInstances
         IpProtocol: "-1"
       VpcId: 
         !ImportValue FireboxVPC

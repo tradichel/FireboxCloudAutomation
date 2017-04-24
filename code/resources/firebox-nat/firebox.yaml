@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "Firebox Cloud Template"
+Description: "Firebox Cloud"
 Parameters: 
   ParamFireboxAMI:
     Type: String
@@ -19,22 +19,6 @@ Parameters:
     Default: "firebox-trial"
     Description: "Name used in resource tags and names"
 Resources:
-  Firebox: 
-    Type: "AWS::EC2::Instance"
-    Properties: 
-      ImageId: 
-        Ref: ParamFireboxAMI
-      InstanceType:
-        Ref: ParamInstanceType
-      NetworkInterfaces:
-        - AssociatePublicIpAddress: false
-          Description: Firebox Private Network Interface
-          DeviceIndex: "0"
-          GroupSet: 
-            - !ImportValue FireboxSecurityGroup
-          SubnetId: 
-            !ImportValue FireboxPrivateSubnet
-          DeleteOnTermination: true
   FireboxPublicNetworkInterface:
     Type: "AWS::EC2::NetworkInterface"
     Properties: 
@@ -44,23 +28,38 @@ Resources:
       SubnetId: 
         !ImportValue FireboxPublicSubnet
       SourceDestCheck: false
-  FireboxPublicENIAttachment:
-    Type: "AWS::EC2::NetworkInterfaceAttachment"
+  FireboxPrivateNetworkInterface:
+    Type: "AWS::EC2::NetworkInterface"
     Properties: 
-      DeleteOnTermination: true
-      DeviceIndex: "1"
-      InstanceId: 
-        Ref: Firebox
-      NetworkInterfaceId: 
-        Ref: FireboxPublicNetworkInterface 
-  FireboxElasticIP:
-    Type: AWS::EC2::EIP
-  FireboxEIPAssociation:
-    Type: "AWS::EC2::EIPAssociation"
-    Properties:
-      InstanceId:
-        Ref: Firebox
-      EIP: 
-        Ref: FireboxElasticIP
-      NetworkInterfaceId:
-        Ref: FireboxPublicNetworkInterface
+      Description: Firebox Private Network Interface
+      GroupSet: 
+        - !ImportValue FireboxSecurityGroup
+      SubnetId: 
+        !ImportValue FireboxPrivateSubnet
+  Firebox: 
+    Type: "AWS::EC2::Instance"
+    Properties: 
+      ImageId: 
+        Ref: ParamFireboxAMI
+      InstanceType:
+        Ref: ParamInstanceType
+      NetworkInterfaces:
+        - NetworkInterfaceId:
+            Ref: FireboxPrivateNetworkInterface
+          DeviceIndex: '0'
+        - NetworkInterfaceId:
+            Ref: FireboxPublicNetworkInterface
+          DeviceIndex: '1'
+Outputs:
+  FireboxPrivateNetworkInterface:
+    Value: !Ref FireboxPrivateNetworkInterface
+    Export:
+      Name: "FireboxPrivateNetworkInterface"
+  FireboxPublicNetworkInterface:
+    Value: !Ref FireboxPublicNetworkInterface
+    Export:
+      Name: "FireboxPublicNetworkInterface"
+  Firebox:
+    Value: !Ref Firebox
+    Export:
+      Name: "Firebox"

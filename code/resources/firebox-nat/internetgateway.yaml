@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "Internet Gateway Template"
+Description: "Firebox Internet Gateway"
 Parameters: 
   ParamStackName: 
     Type: String
