@@ -1,60 +1,41 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "Firebox Cloud AWS Network"
+Description: "Firebox Cloud Subnets"
+#TODO: add internet gateway to public subnet
+#TODO: All traffic out of Interent goes through NAT with rule like this
+#0.0.0.0/0 eni-4e411442 / i-07da727c3da17a529
+#TODO: create eni that has public EIP attached, source/dest false, delete on termination = true
+#Associated with firebox EC2
+#eth0 = public subnet
+#eth1 = private subnet
 Parameters: 
   ParamStackName: 
     Type: String
     Default: "firebox-trial"
     Description: "Name used in resource tags and names"
-  ParamVPCCidr: 
-    Type: String
-    Default: "10.0.0.0/16"
-    Description: "CIDR block for VPC"
-  ParamVPCCidr: 
-    Type: String
-    Default: "10.0.0.0/16"
-    Description: "CIDR block for VPC"
-  ParamSubnetCidr: 
+  ParamPublicSubnetCidr: 
     Type: String
     Default: "10.0.0.0/24"
-    Description: "CIDR block for Subnet"
+    Description: "CIDR block for public subnet"
+  ParamAllowedOutCidr: 
+    Type: String
+    Default: "0.0.0.0/0"
+    Description: "CIDR block for allowed outbound traffic"
+  ParamPrivateSubnetCidr: 
+    Type: String
+    Default: "10.0.1.0/24"
+    Description: "CIDR block for private subnet"
 Resources:
-  FireboxVPC:
-    Type: AWS::EC2::VPC
-    Properties:
-      CidrBlock: 
-        Ref: ParamVPCCidr
-      EnableDnsSupport: 'true'
-      Tags:
-      - Key: Name
-        Value: FireboxCloudVPC
-      - Key: Stack
-        Value: 
-          Ref: ParamStackName
-  FireboxSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: "Firebox Security Group"
-      SecurityGroupEgress:
-      - CidrIp: 0.0.0.0/0
-        IpProtocol: "-1"
-      SecurityGroupIngress:
-      - CidrIp: 0.0.0.0/0
-        IpProtocol: "-1"
-      VpcId: 
-        Ref: FireboxVPC
-      Tags:
-      - Key: Name
-        Value: FireboxPrivateSubnet
-      - Key: Stack
-        Value: 
-          Ref: ParamStackName
   FireboxPrivateSubnet:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: 
-        Ref: FireboxVPC
+        !ImportValue FireboxVPC
       CidrBlock: 
-        Ref: ParamSubnetCidr
+        Ref: ParamPrivateSubnetCidr
+      AvailabilityZone: 
+        !Select 
+          - 1
+          - !GetAZs ""
       Tags:
       - Key: Name
         Value: FireboxPrivateSubnet
@@ -65,9 +46,13 @@ Resources:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: 
-        Ref: FireboxVPC
+        !ImportValue FireboxVPC
       CidrBlock: 
-        Ref: ParamSubnetCidr
+        Ref: ParamPublicSubnetCidr
+      AvailabilityZone: 
+        !Select 
+          - 1
+          - !GetAZs ""
       Tags:
       - Key: Name
         Value: FireboxPublicSubnet
@@ -78,12 +63,21 @@ Resources:
     Type: "AWS::EC2::RouteTable"
     Properties: 
       VpcId: 
-        Ref: FireboxVPC
+        !ImportValue FireboxVPC
   FireboxPublicRouteTable:
     Type: "AWS::EC2::RouteTable"
     Properties: 
       VpcId: 
-        Ref: FireboxVPC
+        !ImportValue FireboxVPC
+  FireboxPublicInternetGatewayRoute:
+    Type: "AWS::EC2::Route"
+    Properties: 
+      DestinationCidrBlock: 
+        Ref: ParamAllowedOutCidr
+      GatewayId: 
+        !ImportValue FireboxInternetGateway
+      RouteTableId: 
+        Ref: FireboxPublicRouteTable
   FireboxPrivateRouteTableAssociation:
     Type: "AWS::EC2::SubnetRouteTableAssociation"
     Properties: 
@@ -99,14 +93,10 @@ Resources:
       SubnetId: 
         Ref: FireboxPublicSubnet  
 Outputs:
-  FireboxSecurityGroup:
-    Value: !Ref FireboxSecurityGroup
-    Export:
-      Name: "FireboxSecurityGroup"
   FireboxPrivateSubnet:
     Value: !Ref FireboxPrivateSubnet
     Export:
-      Name: "FireboxSubnet"
+      Name: "FireboxPrivateSubnet"
   FireboxPublicSubnet:
     Value: !Ref FireboxPublicSubnet
     Export:

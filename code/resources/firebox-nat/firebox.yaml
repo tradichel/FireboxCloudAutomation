@@ -1,31 +1,79 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: "Firebox Cloud Template"
 Parameters: 
-  InstanceTypeParameter: 
+  ParamFireboxAMI:
+    Type: String
+    Default: ami-ac1798cc
+    AllowedValues:
+      - ami-ac1798cc
+  ParamInstanceType: 
     Type: String
     Default: c4.large
     AllowedValues: 
+      - t2.micro
+      - t2.small
       - c4.large
     Description: Choose an allowed instance type.
+  ParamStackName: 
+    Type: String
+    Default: "firebox-trial"
+    Description: "Name used in resource tags and names"
 Resources:
   Firebox: 
     Type: "AWS::EC2::Instance"
     Properties: 
       ImageId: 
-        "ami-ac1798cc"
+        Ref: ParamFireboxAMI
       InstanceType:
-        "c4.large"
+        Ref: ParamInstanceType
       SourceDestCheck:
         false
-      NetworkInterfaces: 
-        - AssociatePublicIpAddress: "true"
-          DeviceIndex: "0"
-          GroupSet: 
-            - !ImportValue FireboxSecurityGroup
-          SubnetId: 
-            !ImportValue FireboxSubnet
-    FireboxElasticIP:
-      Type: AWS::EC2::EIP
-      Properties:
-        InstanceId: 
-          Ref: Firebox
+  FireboxPrivateNetworkInterface:
+    Type: "AWS::EC2::NetworkInterface"
+    Properties: 
+      Description: FireboxPrivateNetworkInterface
+      GroupSet:
+        - !ImportValue FireboxSecurityGroup
+      SourceDestCheck: False
+      SubnetId: 
+        !ImportValue FireboxPrivateSubnet
+  FireboxPrivateENIAttachment:
+    Type: "AWS::EC2::NetworkInterfaceAttachment"
+    Properties: 
+      DeleteOnTermination: true
+      DeviceIndex: "0"
+      InstanceId: 
+        Ref: Firebox
+      NetworkInterfaceId: 
+        Ref: FireboxPrivateNetworkInterface
+  FireboxPublicNetworkInterface:
+    Type: "AWS::EC2::NetworkInterface"
+    Properties: 
+      Description: Firebox Public Network Interface
+      GroupSet:
+        - !ImportValue FireboxSecurityGroup
+      SourceDestCheck: False
+      SubnetId: 
+        !ImportValue FireboxPublicSubnet
+  FireboxPublicENIAttachment:
+    Type: "AWS::EC2::NetworkInterfaceAttachment"
+    Properties: 
+      DeleteOnTermination: true
+      DeviceIndex: "1"
+      InstanceId: 
+        Ref: Firebox
+      NetworkInterfaceId: 
+        Ref: FireboxPublicNetworkInterface 
+  FireboxElasticIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      InstanceId: 
+        Ref: Firebox
+  FireboxEIPAssociation:
+    Type: "AWS::EC2::EIPAssociation"
+    Properties:
+      AllocationId: String
+      EIP: 
+        Ref: FireboxElasticIP
+      NetworkInterfaceId:
+        Ref: FireboxPublicNetworkInterface

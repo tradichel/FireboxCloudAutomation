@@ -1,0 +1,54 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Firebox Cloud Security Groups"
+Parameters: 
+  ParamStackName: 
+    Type: String
+    Default: "firebox-trial"
+    Description: "Name used in resource tags and names"
+Resources:
+  FireboxSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Firebox Security Group"
+      SecurityGroupEgress:
+      - CidrIp: 0.0.0.0/0
+        IpProtocol: "-1"
+      SecurityGroupIngress:
+      - CidrIp: 0.0.0.0/0
+        IpProtocol: "-1"
+      VpcId: 
+        !ImportValue FireboxVPC
+      Tags:
+      - Key: Name
+        Value: FireboxSecurityGroup
+      - Key: Stack
+        Value: 
+          Ref: ParamStackName
+  InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Instance Security Group"
+      SecurityGroupEgress:
+      - CidrIp: 0.0.0.0/0
+        IpProtocol: "-1"
+      SecurityGroupIngress:
+      - CidrIp: 0.0.0.0/0
+        IpProtocol: "-1"
+      VpcId: 
+        !ImportValue FireboxVPC
+      Tags:
+      - Key: Name
+        Value: InstanceSecruityGroup
+      - Key: Stack
+        Value: 
+          Ref: ParamStackName 
+Outputs:
+  FireboxSecurityGroup:
+    Value: !Ref FireboxSecurityGroup
+    Export:
+      Name: "FireboxSecurityGroup"
+  InstanceSecurityGroup:
+    Value: !Ref InstanceSecurityGroup
+    Export:
+      Name: "InstanceSecurityGroup"
+  
