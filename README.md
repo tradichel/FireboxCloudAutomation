@@ -34,9 +34,9 @@ Now Run The Code (in the code directory):
 
         ./run.sh create nat fireboxtrial 
 
-        ./run.sh delete fireboxtrial
+        ./run.sh delete nat fireboxtrial
 
-        ./run.sh update fireboxtrial
+        ./run.sh update nat fireboxtrial
 
     Windows:
     
