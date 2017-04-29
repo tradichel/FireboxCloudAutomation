@@ -25,10 +25,12 @@ then
     echo "* Oops..."
     echo "* Looks like you are missing a command line argument:"
     echo "* - action: create, delete, update"
-    echo "* - configuration: nat"
+    echo "* - configuration: nat, test"
     echo "* - name: [anything lowercase, no spaces or special caharacters]"
     echo "* Run the script like this: "
     echo "* ./run.sh create nat fireboxtrial"
+    echo "* Then test like this:"
+    echo "* ./run.sh create test fireboxtest"
     echo "****"
     exit
 

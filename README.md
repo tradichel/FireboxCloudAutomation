@@ -4,9 +4,11 @@ About This Repo:
 
     Deploy a Firebox Cloud in Your AWS Account.
 
-    Firebox Cloud: 
-    https://aws.amazon.com/marketplace/pp/B06XJ9NQY3?qid=1489541285919&sr=0-3630&ref_=srh_res_product_image
-    
+    Pay As You Go With 30 day trial - supports t2.micro, c4.large and up:
+    https://aws.amazon.com/marketplace/pp/B06XJ9YTMF?utm_source=teriradichel&utm_medium=Twitter&utm_campaign=gh
+
+    BYOL - supports c4.large and up: 
+    https://aws.amazon.com/marketplace/pp/B06XJ9NQY3?utm_source=teriradichel&utm_medium=Twitter&utm_campaign=gh
 
 Before You Run This Script:
 
@@ -48,10 +50,10 @@ More about Firebox Cloud:
     https://www.watchguard.com/help/docs/fireware/11/en-US/Content/en-US/firebox_cloud/fb_cloud_help_intro.html
 
     Contact a WatchGuard reseller:
-    http://www.watchguard.com/wgrd-resource-center/how-to-buy
+    http://www.watchguard.com/wgrd-resource-center/how-to-buy?utm_source=teriradichel&utm_medium=gh&utm_campaign=gh
 
     Some resellers sell on Amazon:
-    https://www.amazon.com/s/ref=nb_sb_noss_1?url=search-alias%3Daps&field-keywords=watchguard
+    https://www.amazon.com/s/ref=nb_sb_noss_1?url=search-alias%3Daps&field-keywords=watchguard&utm_source=teriradichel&&utm_medium=gh&utm_campaign=gh
 
 Notes:
 
@@ -67,7 +69,7 @@ Questions?
 Other Cloud Resources:
 
     Cloud Security:
-    https://www.secplicity.org/2017/04/08/cloud-security/
+    https://www.secplicity.org/2017/04/08/cloud-security/?utm_source=teriradichel&utm_medium=Twitter&utm_campaign=gh
 
     How Can Automation Improve Security?
-    https://www.secplicity.org/2017/04/21/how-can-automation-improve-security/
+    https://www.secplicity.org/2017/04/21/how-can-automation-improve-security/?utm_source=teriradichel&utm_medium=gh&utm_campaign=gh

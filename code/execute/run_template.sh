@@ -1,5 +1,5 @@
 #!/bin/sh
-action=$1; stack=$2; template=$3
+action=$1; stack=$2; template=$3; capabilities=$4
 
 if [ "$stack" == "" ] 
 then
@@ -14,8 +14,7 @@ then
 fi
 
 echo "***"
-
-echo "* $action stack name: $stack"
+echo "* $action stack name: $stack $capabilities"
 
 if [ "$action" == "delete" ] 
 then
@@ -25,6 +24,8 @@ else
 	then
 		echo "* Error: Stack template is required in parameter template in form file://filename"
 		exit
+	else
+		echo "* Using template: $template"
 	fi
 	aws cloudformation $action-stack --stack-name $stack --template-body $template $capabilities $parameters > $stack.txt 2>&1
 fi

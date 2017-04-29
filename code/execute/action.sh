@@ -22,7 +22,7 @@ function delete_rollback_stack () {
 
 function run_template () {
 
-    action=$1;stack=$2;template=$3
+    action=$1;stack=$2;template=$3;capabilities="$4";
     aws cloudformation describe-stacks --stack-name $stack > $stack.txt  2>&1      
     exists=$(./execute/get_value.sh $stack.txt "StackId")
 
@@ -39,9 +39,9 @@ function run_template () {
         break
     fi
     
-    echo "$action $stack $template" >> log.txt
-    echo "$action $stack complete"
-    ./execute/run_template.sh $action $stack $template
+    echo "$action $stack $template $capabilities" >> log.txt
+    echo "$action $stack complete $capabilities"
+    ./execute/run_template.sh $action $stack $template "$capabilities"
     exitcode=$?
     check_exit_code $exitcode $stack $template
     wait_to_complete $exitcode $action $stack $template
@@ -57,52 +57,84 @@ function wait_to_complete () {
     fi
 }
 
-echo "***"
-echo "* Deploying the NAT configuration of Firebox as explained here: "
-echo "* https://www.watchguard.com/help/docs/fireware/11/en-US/Content/en-US/firebox_cloud/fb_cloud_help_intro.html"
-echo "***"
 
-#templates
-vpc="file://./resources/firebox-nat/vpc.yaml"
-internetgateway="file://./resources/firebox-nat/internetgateway.yaml"
-subnets="file://./resources/firebox-nat/subnets.yaml"
-securitygroups="file://./resources/firebox-nat/securitygroups.yaml"
-firebox="file://resources/firebox-nat/firebox.yaml"
-elasticip="file://resources/firebox-nat/elasticip.yaml"
-natroute="file://resources/firebox-nat/natroute.yaml"
-#config="file://resources/firebox-nat/config.xml"
 
-#cloudformation stack names
-vpcstack="vpc-$name"
-subnetstack="subnets-$name"
-sgstack="securitygroups-$name"
-igstack="internetgateway-$name"
-fireboxstack="firebox-$name"
-elasticipstack="elasticip-$name"
-natroutestack="natroute-$name"
-
-if [ "$action" != "create" ] && [ "$action" != "delete" ] && [ "$action" != "update" ]
+if [ $config == "nat" ]
 then
-    echo "* Action must be 'create', 'update', or 'delete'"
+
+    echo "***"
+    echo "* Deploying the NAT configuration of Firebox as explained here: "
+    echo "* https://www.watchguard.com/help/docs/fireware/11/en-US/Content/en-US/firebox_cloud/fb_cloud_help_intro.html"
+    echo "***"
+
+    #templates
+    vpc="file://./resources/firebox-nat/vpc.yaml"
+    internetgateway="file://./resources/firebox-nat/internetgateway.yaml"
+    subnets="file://./resources/firebox-nat/subnets.yaml"
+    securitygroups="file://./resources/firebox-nat/securitygroups.yaml"
+    firebox="file://resources/firebox-nat/firebox.yaml"
+    elasticip="file://resources/firebox-nat/elasticip.yaml"
+    natroute="file://resources/firebox-nat/natroute.yaml"
+    #config="file://resources/firebox-nat/config.xml"
+
+    #cloudformation stack names
+    vpcstack="vpc-$name"
+    subnetstack="subnets-$name"
+    sgstack="securitygroups-$name"
+    igstack="internetgateway-$name"
+    fireboxstack="firebox-$name"
+    elasticipstack="elasticip-$name"
+    natroutestack="natroute-$name"
+
+    if [ "$action" == "create" ] || [ "$action" == "update" ]
+    then
+        run_template $action $vpcstack $vpc
+        run_template $action $igstack $internetgateway
+        run_template $action $subnetstack $subnets
+        run_template $action $sgstack $securitygroups
+        run_template $action $fireboxstack $firebox
+        run_template $action $elasticipstack $elasticip
+        run_template $action $natroutestack $natroute
+    else #reverse on delete
+        run_template $action $natroutestack 
+        run_template $action $fireboxstack 
+        run_template $action $elasticipstack
+        run_template $action $subnetstack
+        run_template $action $sgstack 
+        run_template $action $igstack
+        run_template $action $vpcstack    
+    fi
     exit
 fi
 
-if [ "$action" == "create" ] || [ "$action" == "update" ]
+#run this after the Firebox is set up to test out the configuration
+if [ $config == "test" ]
 then
-    run_template $action $vpcstack $vpc
-    run_template $action $igstack $internetgateway
-    run_template $action $subnetstack $subnets
-    run_template $action $sgstack $securitygroups
-    run_template $action $fireboxstack $firebox
-    run_template $action $elasticipstack $elasticip
-    run_template $action $natroutestack $natroute
-else #reverse on delete
-    run_template $action $fireboxstack 
-    run_template $action $elasticipstack
-    run_template $action $natroutestack 
-    run_template $action $subnetstack
-    run_template $action $sgstack 
-    run_template $action $igstack
-    run_template $action $vpcstack    
+
+    echo "***"
+    echo "* Deploying resources to test our Firebox Cloud Deployment "
+    echo "***"
+
+    #templates
+    flowlogsrole="file://./resources/test/flowlogsrole.yaml"
+    flowlogs="file://./resources/test/flowlogs.yaml"
+
+    #cloudformation stack names
+    flowlogsrolestack="flowlogsrole-$name"
+    flowlogsstack="flowlogs-$name"
+
+    capabilities="--capabilities CAPABILITY_NAMED_IAM"
+        
+    if [ "$action" == "create" ] || [ "$action" == "update" ]
+    then
+        run_template $action $flowlogsrolestack $flowlogsrole "$capabilities"
+        run_template $action $flowlogsstack $flowlogs
+    else #reverse on delete
+        run_template $action $flowlogsstack $flowslogs
+        run_template $action $flowlogsrolestack $flowlogsrole
+    fi
+    exit
+
 fi
 
+echo "config does not exist: $config"
