@@ -34,6 +34,8 @@ Now Run The Code (in the code directory):
 
     Mac, Linux:
 
+        ./run.sh [action] [configuration] [name of cloudformation stack]
+
         ./run.sh create nat fireboxtrial 
 
         ./run.sh delete nat fireboxtrial
