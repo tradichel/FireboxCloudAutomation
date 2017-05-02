@@ -8,17 +8,20 @@
 #
 ###############################################################
 
+
 dt=$(date)
 region=$(aws configure get region)
-action=$1; config=$2;
+action=$1;
 
-#change these to match your environment, ifd different
+#change these to match your environment, if different
 keyname="firebox-cloud-ec2-key"
 adminuser="tradichel"
+
 #this IP range will let any IP access your S3 bucket - change if you like
 adminips="0.0.0.0/0" 
-#adminips="50.199.7.166/32"
-#adminips="208.146.43.0/24"
+
+#adminips="50.198.7.166/32"
+#adminips="208.145.43.0/24"
 
 rm *.txt
 
