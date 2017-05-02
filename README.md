@@ -4,7 +4,7 @@ About This Repo:
 
     Deploy a Firebox Cloud in Your AWS Account.
 
-    Using bash for people famaliar with it. 
+    Using bash for people familiar with it. 
 
     Pay As You Go With 30 day trial - supports t2.micro, c4.large and up:
     https://aws.amazon.com/marketplace/pp/B06XJ9YTMF?utm_source=teriradichel&utm_medium=Twitter&utm_campaign=gh
