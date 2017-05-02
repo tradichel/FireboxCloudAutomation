@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "Firebox Cloud"
+Description: "Firebox FlowLogs Role"
 Resources:
   FireboxFlowLogRole: 
     Type: "AWS::IAM::Role"

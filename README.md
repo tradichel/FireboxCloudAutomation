@@ -30,27 +30,48 @@ Before You Run This Script:
     More about cloning repos:
     https://git-scm.com/docs/git-clone
 
+    Create a key so you can configure your firebox
+    http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html
+
+    Change these values in /code/run.sh file to match your environment:
+
+    keyname="firebox-cloud-ec2-key" (the key name you just created)
+    adminuser="tradichel"           (your IAM user name with MFA enabled on this user)
+    adminips="0.0.0.0/0"            (Admin IP range that can upload key to bucket)
+
 Now Run The Code (in the code directory):
+
+./run.sh [action = create, update, delete]
 
     Mac, Linux:
 
-        ./run.sh [action] [configuration] [name of cloudformation stack]
+        ./run.sh create 
 
-        ./run.sh create nat fireboxtrial 
+        ./run.sh delete
 
-        ./run.sh delete nat fireboxtrial
-
-        ./run.sh update nat fireboxtrial
+        ./run.sh update
 
     Windows:
     
         Leave off the ./ in the commands above
+
+After The Script Completes:
+
+    Upload the EC2 keypair into the new private bucket created for the Firebox.
+
+Up Next:
+
+    Let's see if we can run CLI commands from private network using the key in the S3 bucket...
+    Key should only be accessible to lambda role created above and admins using MFA.
 
 More about Firebox Cloud:
 
     Set Up Firebox Cloud:
     https://www.watchguard.com/help/docs/fireware/11/en-US/Content/en-US/firebox_cloud/fb_cloud_help_intro.html
 
+    Latest Firebox Documentation:
+    https://www.watchguard.com/wgrd-help/documentation/xtm
+    
     Contact a WatchGuard reseller:
     http://www.watchguard.com/wgrd-resource-center/how-to-buy?utm_source=teriradichel&utm_medium=gh&utm_campaign=gh
 

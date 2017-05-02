@@ -1,0 +1,78 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Firebox CLI Network Rules"
+Parameters: 
+  ParamStackName: 
+    Type: String
+    Default: "firebox-trial"
+    Description: "Name used in resource tags and names"
+  ParamCLIPort: 
+    Type: String
+    Default: "4118"
+    Description: "Open port for CLI access to Firebox on port 4118"
+  ParamCLISubnetCidr: 
+    Type: String
+    Default: "10.0.2.0/24"
+    Description: "CIDR block for lambda function executing CLI commands"
+Resources:
+  FireboxCLISubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: 
+        !ImportValue FireboxVPC
+      CidrBlock: 
+        Ref: ParamCLISubnetCidr
+      AvailabilityZone: 
+        !Select 
+          - 1
+          - !GetAZs ""
+      Tags:
+      - Key: Name
+        Value: FireboxCLISubnet
+      - Key: Stack
+        Value: 
+          Ref: ParamStackName
+  FireboxCLIRouteTable:
+    Type: "AWS::EC2::RouteTable"
+    Properties: 
+      VpcId: 
+        !ImportValue FireboxVPC
+  FireboxCLIRouteTableAssociation:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties: 
+      RouteTableId:
+        Ref: FireboxCLIRouteTable
+      SubnetId: 
+        Ref: FireboxCLISubnet
+  #route will include route for VPC
+  #NACL wide open by default
+  #TODO: allow management port only to FB
+  #TODO: Block port 4118 from web server subnet
+  ManagementSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Management Security Group Allowed to Access FB CLI"
+      SecurityGroupEgress:
+      - DestinationSecurityGroupId:
+          !ImportValue FireboxSecurityGroup
+        IpProtocol: "tcp"
+        FromPort: !Ref ParamCLIPort
+        ToPort: !Ref ParamCLIPort
+      VpcId: 
+        !ImportValue FireboxVPC
+      Tags:
+      - Key: Name
+        Value: FireboxManagementSecurityGroup
+      - Key: Stack
+        Value: 
+          Ref: ParamStackName 
+#TODO: Further restrictions on Firebox SG/Subnet
+#TODO: Then Allow management on 4118 to Firebox
+Outputs:
+  FireboxCLISubnet:
+    Value: !Ref FireboxCLISubnet
+    Export:
+      Name: "FireboxCLISubnet"
+  FireboxCLIRouteTable:
+    Value: !Ref FireboxCLIRouteTable
+    Export:
+      Name: "FireboxCLIRouteTable"

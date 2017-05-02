@@ -18,6 +18,10 @@ Parameters:
     Type: String
     Default: "firebox-trial"
     Description: "Name used in resource tags and names"
+  ParamKeyName: 
+    Type: String
+    Default: ""
+    Description: "EC2 Key Pair name for CLI Commands over SSH"
 Resources:
   FireboxPublicNetworkInterface:
     Type: "AWS::EC2::NetworkInterface"
@@ -50,6 +54,7 @@ Resources:
         - NetworkInterfaceId:
             Ref: FireboxPublicNetworkInterface
           DeviceIndex: '1'
+      KeyName: !Ref ParamKeyName
 Outputs:
   FireboxPrivateNetworkInterface:
     Value: !Ref FireboxPrivateNetworkInterface
@@ -63,3 +68,7 @@ Outputs:
     Value: !Ref Firebox
     Export:
       Name: "Firebox"
+  FireboxPrimaryPrivateIpAddress:
+    Value: !GetAtt FireboxPrivateNetworkInterface.PrimaryPrivateIpAddress
+    Export:
+      Name: "FireboxPrimaryPrivateIpAddress"

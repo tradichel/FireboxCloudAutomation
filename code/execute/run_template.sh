@@ -1,5 +1,5 @@
 #!/bin/sh
-action=$1; stack=$2; template=$3; capabilities=$4
+action=$1; stack=$2; template=$3; capabilities=$4; parameters=$5
 
 if [ "$stack" == "" ] 
 then
@@ -14,7 +14,7 @@ then
 fi
 
 echo "***"
-echo "* $action stack name: $stack $capabilities"
+echo "* $action stack name: $stack $capabilities $parameters"
 
 if [ "$action" == "delete" ] 
 then
@@ -32,9 +32,12 @@ fi
 cat $stack.txt >> log.txt
 noupdates="$(cat $stack.txt | grep 'No updates')"
 rollback="$(cat $stack.txt | grep 'ROLLBACK_COMPLETE state and can not be updated')"
+noexport="$(cat $stack.txt | grep 'No export')"
 err="$(cat $stack.txt | grep 'error')"
+failed="$(cat $stack.txt | grep 'failed')"
 if [ "$noupdates" != "" ]; then exit 1; fi
 cat $stack.txt 
 if [ "$rollback" != "" ]; then exit 2; fi
-if [ "$err" != "" ]; then exit 3; fi
+if [ "$err" != "" ] || [ "$failed" != "" ]; then exit 3; fi
+if [ "$noexport" != "" ]; then exit 4; fi
 exit 0

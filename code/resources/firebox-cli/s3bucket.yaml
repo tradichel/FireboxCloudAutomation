@@ -1,0 +1,15 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Firebox Private Bucket for Sensitive Data"
+Resources:
+  FireboxPrivateBucket:
+    Type: "AWS::S3::Bucket"
+    Properties: 
+      BucketName: 
+        !Join [ "-", [ "firebox-private-cli-bucket", !Ref "AWS::AccountId", !Ref "AWS::Region" ] ]
+Outputs:
+  FireboxPrivateBucket:
+    Description: Firebox Private Bucket
+    Value: 
+      !Ref FireboxPrivateBucket
+    Export:
+      Name: "FireboxPrivateBucket"

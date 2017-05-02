@@ -10,37 +10,35 @@
 
 dt=$(date)
 region=$(aws configure get region)
-action=$1; config=$2; name=$3
+action=$1; config=$2;
+
+#change these to match your environment, ifd different
+keyname="firebox-cloud-ec2-key"
+adminuser="tradichel"
+#this IP range will let any IP access your S3 bucket - change if you like
+adminips="0.0.0.0/0" 
+
 rm *.txt
 
 echo "***"
 echo "* Begin: $dt" 
 echo "* Your CLI is configured to create resources in this region: " $region
-echo "* http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html"
 
-if [ "$action" == "" ] || [ "$config" == "" ] || [ "$name" == "" ]
+if [ "$action" == "" ] 
 then
 
     echo "****"
-    echo "* Oops..."
-    echo "* Looks like you are missing a command line argument:"
-    echo "* - action: create, delete, update"
-    echo "* - configuration: nat, test"
-    echo "* - name: [anything lowercase, no spaces or special caharacters]"
-    echo "* Run the script like this: "
-    echo "* ./run.sh create nat fireboxtrial"
-    echo "* Then test like this:"
-    echo "* ./run.sh create test fireboxtest"
+    echo "* Oops...Looks like you are missing a command line argument."
+    echo "* action: [create, delete, update]"
+    echo "* Follow the instruction in the readme"
     echo "****"
     exit
 
 else
 
-    echo "Executing..."
-    echo "action: $action"
-    echo "config: $config"
-    echo "name: $name"
-    . ./execute/action.sh $action $config $name
+    echo "Executing: $action"
+    . ./execute/action.sh $action $keyname $adminuser $adminips
+    #upload key into bucket and then can create a lambda function to configure firebox
 
 fi
 dt=$(date)
