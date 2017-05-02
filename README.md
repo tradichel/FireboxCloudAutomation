@@ -66,6 +66,10 @@ Up Next:
     Let's see if we can run CLI commands from private network using the key in the S3 bucket...
     Key should only be accessible to lambda role created above and admins using MFA.
 
+Details:
+
+    Read the wiki: https://github.com/tradichel/FireboxCloudAutomation/wiki
+
 More about Firebox Cloud:
 
     Set Up Firebox Cloud:
