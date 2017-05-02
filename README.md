@@ -30,7 +30,7 @@ Before You Run This Script:
     More about cloning repos:
     https://git-scm.com/docs/git-clone
 
-    Create a key so you can configure your firebox
+    Create a key so you can automate configuration of your firebox 
     http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html
 
     Change these values in /code/run.sh file to match your environment:

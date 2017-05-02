@@ -17,6 +17,8 @@ keyname="firebox-cloud-ec2-key"
 adminuser="tradichel"
 #this IP range will let any IP access your S3 bucket - change if you like
 adminips="0.0.0.0/0" 
+#adminips="50.199.7.166/32"
+#adminips="208.146.43.0/24"
 
 rm *.txt
 
