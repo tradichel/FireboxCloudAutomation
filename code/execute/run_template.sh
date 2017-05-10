@@ -1,19 +1,32 @@
 #!/bin/sh
-action=$1; stack=$2; template=$3; capabilities=$4; parameters=$5
+action=$1; stack=$2; template=$3; 
+capabilities="--capabilities CAPABILITY_NAMED_IAM"
 
 if [ "$stack" == "" ] 
 then
 	echo "* Error: Stack name is required."
 	exit
-fi
+fi 
 
-if [ "$action" == "" ] 
+if [ "$action" == "" ]  
 then
 	echo "* Error: Action is required."
 	exit
 fi
 
-echo "***"
+#There is a better long term way to do this but just for example purposes:
+if [ "$stack" == "firebox" ]
+then
+    parameters="--parameters ParameterKey=ParamKeyName,ParameterValue=$keyname"
+else
+    if [ "$stack" == "s3bucketpolicy" ]
+    then
+        parameters="--parameters ParameterKey=ParamAdminCidr,ParameterValue=$admincidr ParameterKey=ParamAdminUser,ParameterValue=$adminuser"
+    fi
+fi
+
+
+echo "***RUN TEMPLATE***"
 echo "* $action stack name: $stack $capabilities $parameters"
 
 if [ "$action" == "delete" ] 
@@ -24,20 +37,6 @@ else
 	then
 		echo "* Error: Stack template is required in parameter template in form file://filename"
 		exit
-	else
-		echo "* Using template: $template"
 	fi
 	aws cloudformation $action-stack --stack-name $stack --template-body $template $capabilities $parameters > $stack.txt 2>&1
 fi
-cat $stack.txt >> log.txt
-noupdates="$(cat $stack.txt | grep 'No updates')"
-rollback="$(cat $stack.txt | grep 'ROLLBACK_COMPLETE state and can not be updated')"
-noexport="$(cat $stack.txt | grep 'No export')"
-err="$(cat $stack.txt | grep 'error')"
-failed="$(cat $stack.txt | grep 'failed')"
-if [ "$noupdates" != "" ]; then exit 1; fi
-cat $stack.txt 
-if [ "$rollback" != "" ]; then exit 2; fi
-if [ "$err" != "" ] || [ "$failed" != "" ]; then exit 3; fi
-if [ "$noexport" != "" ]; then exit 4; fi
-exit 0

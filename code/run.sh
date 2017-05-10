@@ -28,10 +28,13 @@ echo "* Resources will be created in this region."
 echo "* Switch to this region in console when you login."
 echo "* ------------------------------------------------------"
 
-#todo: add this back to bucket policy
-echo "Enter the IP range allowed to access Firebox S3 bucket (default is 0.0.0.0/0)"
-read adminips
-if [ "$adminips" = "" ]; then adminips="0.0.0.0/0"; fi
+if [ "$action" != "delete" ]
+then
+    #todo: add this back to bucket policy
+    echo "Enter the IP range allowed to access Firebox S3 bucket (default is 0.0.0.0/0)"
+    read adminips
+    if [ "$adminips" = "" ]; then adminips="0.0.0.0/0"; fi
+fi
 
 #get the user information to get an active session with MFA
 aws sts  get-caller-identity > "user.txt" 2>&1
@@ -59,7 +62,7 @@ then
     fi
 fi
 
-keyname="firebox-cloud-ec2-key"
+keyname="firebox-cli-ec2-key"
 echo ""
 echo "* ---- NOTE --------------------------------------------"
 echo "* Creating EC2 keypair: $keyname"
@@ -75,12 +78,11 @@ if [ "$noexist" != "" ]
 then
     aws ec2 create-key-pair --key-name $keyname --query 'KeyMaterial' --output text > $keyname.pem
     chmod 600 $keyname.pem
-    ls -al
 fi
 
 #if no errors create the stack
-echo "Executing: $action with $user as admin user at $adminips"
+echo "Executing: $action with $user as admin user with ips: $adminips"
 . ./execute/action.sh $action $keyname $user $adminips
 
-dt=$(date)
-echo "Done: $dt"
+#dt=$(date)
+echo "Done"

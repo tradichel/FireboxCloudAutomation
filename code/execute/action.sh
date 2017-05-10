@@ -1,126 +1,136 @@
 #!/bin/sh
 action=$1; keyname=$2; adminuser=$3; admincidr=$4
 
-#don't need this for every stack but keeping code simpler
-capabilities="--capabilities CAPABILITY_NAMED_IAM"
-
 #stack = file name less the .yaml extension
 function modify_stack(){
-
     action=$1;config=$2;
     declare -a stackarray=("${!3}")
     for (( i = 0 ; i < ${#stackarray[@]} ; i++ ))
     do
-        run_template $action $config "${stackarray[$i]}"
+        echo "modify_stack: " $action $config "${stackarray[$i]}"
+        run_template "$action" "$config" "${stackarray[$i]}"
     done
-    
 }
 
 function run_template () {
-
-    action=$1;config=$2;stack=$3
-
-    parameters=""
-
-    if [ "$stack" == "firebox" ]
-    then
-        parameters="--parameters ParameterKey=ParamKeyName,ParameterValue=$keyname"
-    else
-        if [ "$stack" == "s3bucketpolicy" ]
-        then
-            parameters="--parameters ParameterKey=ParamAdminCidr,ParameterValue=$admincidr ParameterKey=ParamAdminUser,ParameterValue=$adminuser"
-        fi
-    fi
-
+    local action=$1; local config=$2; local stack=$3
     template="file://resources/firebox-$config/$stack.yaml"
     stackname="firebox-$config-$stack"
     aws cloudformation describe-stacks --stack-name $stackname > $stackname.txt  2>&1  
     exists=$(./execute/get_value.sh $stackname.txt "StackId")
+    vaction=$(validate_action "$exists" "$action" "$stackname")
+    
+    if [ "$vaction" == "noupdates" ]; then echo $vaction; return; fi
+
+    ./execute/run_template.sh "$vaction" "$stackname" "$template"
    
-    if [ "$exists" != "" ] && [ "$action" == "create" ] 
-    then 
-        action="update"
+   if [ -f $stackname.txt ]; then
+
+        noupdates="$(cat $stackname.txt | grep 'No updates')"
+        if [ "$noupdates" != "" ]; then return; fi
+
+        err="$(cat $stackname.txt | grep 'error\|failed')"
+        if [ "$err" != "" ]; then echo $err; exit; fi
+        
+        wait_to_complete $action $config $stackname
     else
-        if [ "$exists" == "" ] && [ "$action" == "update" ] 
-            then action="create"
-        else
-            if [ "$exists" == "" ] && [ "$action" == "delete" ] 
-                then echo "* $stack does not exist. Nothing to delete."
-                break
-            fi
-        fi
+        exit
+    fi
+}
+
+function validate_action(){
+    exists=$1;action=$2;stackname=$3
+
+    if [ "$action" == "delete" ]; then
+        if [ "$exists" == "" ]; then action="noupdates"; fi
+        echo $action
+        return
+    fi
+    
+    if [ "$exists" == "" ] && [ "$action" == "update" ]; then
+        action="create"
     fi
 
-    if [ $action = "update" ]
+    if [ "$exists" != "" ]
     then 
         aws cloudformation describe-stacks --stack-name $stackname > $stackname.txt  2>&1  
         status=$(./execute/get_value.sh $stackname.txt "StackStatus")
-        echo "Status of stack $stackname: $status"
         case "$status" in 
-            ROLLBACK_COMPLETE|ROLLBACK_FAILED)
-             echo "delete stack: $stackname"
-            ./execute/run_template.sh "delete" $stackname "$capabilities"
-            wait_to_complete 0 "delete" $config $stackname
+            ROLLBACK_COMPLETE|ROLLBACK_FAILED|DELETE_FAILED)
+            ./execute/run_template.sh "delete" "$stackname"
+            wait_to_complete "delete" $config $stackname
             action="create"
+            return
+            ;;
+          *)
+            action="update"
             ;;
           *)
         esac
     fi
-        
-    ./execute/run_template.sh $action $stackname $template "$capabilities" "$parameters"
-    exitcode=$?
-    check_exit_code $exitcode $config $stackname
-    wait_to_complete $exitcode $action $config $stackname
-    exitcode=$?
-    check_exit_code $exitcode $config $stackname
+
+    echo $action
 }
 
-function wait_to_complete () {
-    exitcode=$1; action=$2; config=$3; stack=$4
-    if (( $exitcode==0 ))
-    then 
-        ./execute/wait.sh $action $stack  
-        #check the status of the stack
-        if [ "$action" != "delete" ]
-        then
-            aws cloudformation describe-stacks --stack-name $stackname > $stackname.txt  2>&1  
-            status=$(./execute/get_value.sh $stackname.txt "StackStatus")
-            echo $action $config $stack $status >> log.txt
-            case "$status" in 
-                UPDATE_COMPLETE|CREATE_COMPLETE)
-                    break
-                    ;;
-                *)
-                    cat $stackname.txt
-                    aws cloudformation describe-stack-events --stack-name $stackname | grep "ResourceStatusReason"
-                    echo "* ---- What's the problem? ---"
-                    echo "* Stack $action failed."
-                    echo "* See the details above which can also be found in the CloudFormation console"
-                    echo "* ----------------------------"
-                    exit
-                    ;;
-              *)
-            esac
-        fi
+function log_errors(){
+    stackname=$1;action=$2
+
+    aws cloudformation describe-stacks --stack-name $stackname > $stackname.txt  2>&1  
+    exists=$(./execute/get_value.sh $stackname.txt "StackId")
+
+    if [ "$exists" != "" ]
+    then
+        aws cloudformation describe-stacks --stack-name $stackname > $stackname.txt  2>&1  
+        status=$(./execute/get_value.sh $stackname.txt "StackStatus")
+        echo "$stack status: $status"
+        case "$status" in 
+            UPDATE_COMPLETE|CREATE_COMPLETE)   
+                break
+                ;;
+            *)
+                cat $stackname.txt
+                aws cloudformation describe-stack-events --stack-name $stackname | grep "ResourceStatusReason"
+                echo "* ---- What's the problem? ---"
+                echo "* Stack $action failed."
+                echo "* See the details above which can also be found in the CloudFormation console"
+                echo "* ----------------------------"
+                exit
+                ;;
+          *)
+        esac
     fi
 }
 
-function check_exit_code () { 
-    exitcode=$1;config=$2;stackname=$3;stack=$4;
-    if [ -f $stackname.txt ]; then rm $stackname.txt; fi
-    if [ $exitcode -gt 1 ]; then echo "Error: $exitcode"; exit; fi 
+function wait_to_complete () {
+
+    action=$1; config=$2; stack=$3
+    
+    ./execute/wait.sh $action $stack  
+    
+    log_errors $stack $action
 }
 
+#---Start of Script---#
+#reverse of create on delete
 if [ "$action" == "delete" ] 
 then
 
-    #reverse on delete
+    ./execute/delete_files.sh
+
     stack=(     
         "flowlogs"
         "flowlogsrole"
     )
 
+    
     modify_stack $action "flowlogs" stack[@] 
+
+    stack=(
+        "lambda"
+        "kmskey"
+    )
+
+    modify_stack $action "lambda" stack[@] 
 
     stack=(
         "s3bucketpolicy"
@@ -160,37 +170,13 @@ else
     stack=(
         "clinetwork"
         "s3bucket"
+        "clirole"
         "s3bucketpolicy"
     )
 
     modify_stack $action "cli" stack[@] 
 
-    #zip up the python code for the lambda function
-    if [ -f ./resources/firebox-lambda/fireboxconfig.zip ]; then rm ./resources/firebox-lambda/fireboxconfig.zip; fi
-    zip ./resources/firebox-lambda/fireboxconfig.zip ./resources/firebox-lambda/python/fireboxconfig.py 
-
-    #upload the lambda code to the bucket used by lambda cloudformation file
-    bucket=$(./execute/get_output_value.sh "firebox-cli-s3bucket" "FireboxPrivateBucket")
-    aws s3 cp resources/firebox-lambda/fireboxconfig.zip s3://$bucket/fireboxconfig.zip --sse AES256 > upload.txt  2>&1  
-
-    error=$(cat upload.txt | grep "error\|Unknown")
- 
-    if [ "$error" != "" ]
-    then
-        echo "Error uploading fireboxconfig.zip: $error"
-        exit
-    fi
-
-    #upload EC2 Key Pair
-    aws s3 cp $kename.pem s3://$bucket/$keyname.pem --sse AES256 > upload.txt  2>&1  
-
-    error=$(cat upload.txt | grep "error\|Unknown")
- 
-    if [ "$error" != "" ]
-    then
-        echo "Error uploading $kename.pem: $error"
-        exit
-    fi
+    ./execute/upload_files.sh $keyname
 
     stack=(
         "kmskey"
