@@ -48,7 +48,8 @@ Now Run The Code (in the code directory):
 
 Follow the prompts.
 
-1. Select which action you want to take - create, update or delete resources. 
+
+> Select which action you want to take - create, update or delete resources. 
 
     Please select:
     1) Create
@@ -57,11 +58,11 @@ Follow the prompts.
     4) Cancel
     #? 
 
-2. Enter the CIDR that is allowed to upload files to your private S3 bucket or hit enter.
+> Enter the CIDR that is allowed to upload files to your private S3 bucket or hit enter.
 
     Enter the IP range allowed to access Firebox S3 bucket (default is 0.0.0.0/0)
 
-3. Enter an MFA token. Your session lasts 12 hours once created.
+> Enter an MFA token. Your session lasts 12 hours once created.
 
     MFA token (return to use active session):
     
