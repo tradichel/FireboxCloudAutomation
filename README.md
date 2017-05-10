@@ -15,10 +15,14 @@ About This Repo:
 Before You Run This Script:
 
     Create an AWS account:
-    https://aws.amazon.com (click the button to create an account).
+    https://aws.amazon.com (click the button to create an account)
 
     More about AWS:
     https://aws.amazon.com/getting-started/
+
+    Enable MFA on your user ID that is used to run this script:
+    http://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_mfa_enable_virtual.html
+    http://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html
 
     Install and configure the AWS CLI with your access key ID, secret key and region: 
     http://docs.aws.amazon.com/cli/latest/userguide/installing.html
@@ -26,45 +30,49 @@ Before You Run This Script:
     Install git:
     https://git-scm.com/
 
-    Clone this repo with this command: 
+    Clone (download) this repo with this command: 
     git clone https://github.com/tradichel/FireboxCloudAutomation.git
 
     More about cloning repos:
     https://git-scm.com/docs/git-clone
 
-    Create a key so you can automate configuration of your firebox 
+    Create an EC2 Key (SSH Key) so you can automate configuration of your firebox 
     http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html
 
-    Change these values in /code/run.sh file to match your environment:
-
-    keyname="firebox-cloud-ec2-key" (the key name you just created)
-    adminuser="tradichel"           (your IAM user name with MFA enabled on this user)
-    adminips="0.0.0.0/0"            (Admin IP range that can upload key to bucket)
+    If you are using Windows install a bash shell:
+    https://www.howtogeek.com/249966/how-to-install-and-use-the-linux-bash-shell-on-windows-10/
 
 Now Run The Code (in the code directory):
 
-./run.sh [action = create, update, delete]
+        ./run.sh 
 
-    Mac, Linux:
+Follow the prompts.
 
-        ./run.sh create 
+1. Select which action you want to take - create, update or delete resources. 
 
-        ./run.sh delete
+    Please select:
+    1) Create
+    2) Update
+    3) Delete
+    4) Cancel
+    #? 
 
-        ./run.sh update
+2. Enter the CIDR that is allowed to upload files to your private S3 bucket or hit enter.
 
-    Windows:
+    Enter the IP range allowed to access Firebox S3 bucket (default is 0.0.0.0/0)
+
+3. Enter an MFA token. Your session lasts 12 hours once created.
+
+    MFA token (return to use active session):
     
-        Leave off the ./ in the commands above
+Watch as your resources get created...
 
-After The Script Completes:
+Check out what was built and logs in the AWS Console.
 
-    Upload the EC2 keypair into the new private bucket created for the Firebox.
+To Do:
 
-Up Next:
-
-    Let's see if we can run CLI commands from private network using the key in the S3 bucket...
-    Key should only be accessible to lambda role created above and admins using MFA.
+    Lambda function not yet complete
+    Upload EC2 Key Pair to Bucket - in progress.
 
 Details:
 

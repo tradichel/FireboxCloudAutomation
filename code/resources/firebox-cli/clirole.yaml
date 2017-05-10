@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: "Firebox Lambda CLI Role"
 Resources:
-  FireboxLambdaCLIRole: 
+  FireboxLambdaCLIRoleArn: 
     Type: "AWS::IAM::Role"
     Properties: 
       RoleName: "FireboxLambdaCLIRole"
@@ -39,7 +39,7 @@ Resources:
           !Ref FireboxLambdaCLIRole
 Outputs:
   FireboxLambdaCLIRoleArn:
-    Description: ARN of FireboxLambdaCLIRole
-    Value: !GetAtt FireboxLambdaCLIRole.Arn
+    Description: ARN of FireboxLambdaCLIRoleArn
+    Value: !GetAtt FireboxLambdaCLIRoleArn.Arn
     Export:
       Name: "FireboxLambdaCLIRoleArn"

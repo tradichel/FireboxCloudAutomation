@@ -6,13 +6,14 @@ capabilities="--capabilities CAPABILITY_NAMED_IAM"
 
 #stack = file name less the .yaml extension
 function modify_stack(){
+
     action=$1;config=$2;
     declare -a stackarray=("${!3}")
-
     for (( i = 0 ; i < ${#stackarray[@]} ; i++ ))
     do
         run_template $action $config "${stackarray[$i]}"
     done
+    
 }
 
 function run_template () {
@@ -33,12 +34,12 @@ function run_template () {
 
     template="file://resources/firebox-$config/$stack.yaml"
     stackname="firebox-$config-$stack"
-
-    aws cloudformation describe-stacks --stack-name $stackname > $stackname.txt  2>&1      
+    aws cloudformation describe-stacks --stack-name $stackname > $stackname.txt  2>&1  
     exists=$(./execute/get_value.sh $stackname.txt "StackId")
-
+   
     if [ "$exists" != "" ] && [ "$action" == "create" ] 
-        then action="update"
+    then 
+        action="update"
     else
         if [ "$exists" == "" ] && [ "$action" == "update" ] 
             then action="create"
@@ -49,9 +50,23 @@ function run_template () {
             fi
         fi
     fi
-    
-    echo "$action $stackname $template $capabilities $parameters" >> log.txt
-    echo "$action $stackname complete $capabilities $paramaters"
+
+    if [ $action = "update" ]
+    then 
+        aws cloudformation describe-stacks --stack-name $stackname > $stackname.txt  2>&1  
+        status=$(./execute/get_value.sh $stackname.txt "StackStatus")
+        echo "Status of stack $stackname: $status"
+        case "$status" in 
+            ROLLBACK_COMPLETE|ROLLBACK_FAILED)
+             echo "delete stack: $stackname"
+            ./execute/run_template.sh "delete" $stackname "$capabilities"
+            wait_to_complete 0 "delete" $config $stackname
+            action="create"
+            ;;
+          *)
+        esac
+    fi
+        
     ./execute/run_template.sh $action $stackname $template "$capabilities" "$parameters"
     exitcode=$?
     check_exit_code $exitcode $config $stackname
@@ -65,15 +80,34 @@ function wait_to_complete () {
     if (( $exitcode==0 ))
     then 
         ./execute/wait.sh $action $stack  
-        check_exit_code $? $config $stack
-        echo $action $config $stack "complete" >> log.txt
+        #check the status of the stack
+        if [ "$action" != "delete" ]
+        then
+            aws cloudformation describe-stacks --stack-name $stackname > $stackname.txt  2>&1  
+            status=$(./execute/get_value.sh $stackname.txt "StackStatus")
+            echo $action $config $stack $status >> log.txt
+            case "$status" in 
+                UPDATE_COMPLETE|CREATE_COMPLETE)
+                    break
+                    ;;
+                *)
+                    cat $stackname.txt
+                    aws cloudformation describe-stack-events --stack-name $stackname | grep "ResourceStatusReason"
+                    echo "* ---- What's the problem? ---"
+                    echo "* Stack $action failed."
+                    echo "* See the details above which can also be found in the CloudFormation console"
+                    echo "* ----------------------------"
+                    exit
+                    ;;
+              *)
+            esac
+        fi
     fi
 }
 
 function check_exit_code () { 
     exitcode=$1;config=$2;stackname=$3;stack=$4;
     if [ -f $stackname.txt ]; then rm $stackname.txt; fi
-    if [ $exitcode == 2 ]; then ./execute/run_template.sh "delete" $stackname "$capabilities"; fi
     if [ $exitcode -gt 1 ]; then echo "Error: $exitcode"; exit; fi 
 }
 
@@ -90,7 +124,7 @@ then
 
     stack=(
         "s3bucketpolicy"
-        "clilambdarole"
+        "clirole"
         "s3bucket"
         "clinetwork"
     )
@@ -126,12 +160,45 @@ else
     stack=(
         "clinetwork"
         "s3bucket"
-        "clilambdarole"
         "s3bucketpolicy"
     )
 
     modify_stack $action "cli" stack[@] 
 
+    #zip up the python code for the lambda function
+    if [ -f ./resources/firebox-lambda/fireboxconfig.zip ]; then rm ./resources/firebox-lambda/fireboxconfig.zip; fi
+    zip ./resources/firebox-lambda/fireboxconfig.zip ./resources/firebox-lambda/python/fireboxconfig.py 
+
+    #upload the lambda code to the bucket used by lambda cloudformation file
+    bucket=$(./execute/get_output_value.sh "firebox-cli-s3bucket" "FireboxPrivateBucket")
+    aws s3 cp resources/firebox-lambda/fireboxconfig.zip s3://$bucket/fireboxconfig.zip --sse AES256 > upload.txt  2>&1  
+
+    error=$(cat upload.txt | grep "error\|Unknown")
+ 
+    if [ "$error" != "" ]
+    then
+        echo "Error uploading fireboxconfig.zip: $error"
+        exit
+    fi
+
+    #upload EC2 Key Pair
+    aws s3 cp $kename.pem s3://$bucket/$keyname.pem --sse AES256 > upload.txt  2>&1  
+
+    error=$(cat upload.txt | grep "error\|Unknown")
+ 
+    if [ "$error" != "" ]
+    then
+        echo "Error uploading $kename.pem: $error"
+        exit
+    fi
+
+    stack=(
+        "kmskey"
+        "lambda"
+    )
+
+    modify_stack $action "lambda" stack[@] 
+    
     stack=(
         "flowlogsrole" 
         "flowlogs"

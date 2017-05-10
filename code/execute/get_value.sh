@@ -1,3 +1,6 @@
 #!/bin/sh
-echo "$(cat $1 | grep "\"$2\""  | cut -d ':' -f 2- | sed -e 's/^[ \t]*//' -e 's/"//' -e 's/"//' -e 's/,//')"
-rm $1
+filename=$1;key=$2
+var=""
+var="$(cat $filename | grep "\"$key\""  | cut -d ':' -f 2- | sed -e 's/^[ \t]*//' -e 's/"//' -e 's/"//' -e 's/,//')"
+var="$(echo "${var}" | tr -d '[:space:]')"
+echo "$var"

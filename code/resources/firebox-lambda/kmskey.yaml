@@ -1,0 +1,52 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Firebox Cloud Lambda KMS Key"
+Resources:
+  FireboxKmsKey:
+    Type: "AWS::KMS::Key"
+    Properties: 
+      Description: "KMS Key for Firebox Configuration"
+      Enabled: True
+      EnableKeyRotation: True
+      KeyPolicy: 
+        Version: "2012-10-17"
+        Id: "key-default-1"
+        Statement: 
+          - 
+            Sid: "Allow administration of the key"
+            Effect: "Allow"
+            Principal: 
+              #TODO: Principle should be the admin for KMS keys 
+              #AWS: "arn:aws:iam::[....aws account ...]:user/tradichel"
+              AWS: "*"
+            Action: 
+              - "kms:Create*"
+              - "kms:Describe*"
+              - "kms:Enable*"
+              - "kms:List*"
+              - "kms:Put*"
+              - "kms:Update*"
+              - "kms:Revoke*"
+              - "kms:Disable*"
+              - "kms:Get*"
+              - "kms:Delete*"
+              - "kms:ScheduleKeyDeletion"
+              - "kms:CancelKeyDeletion"
+            Resource: "*"
+          - 
+            Sid: "Allow use of the key"
+            Effect: "Allow"
+            Principal: 
+              AWS: !ImportValue FireboxLambdaCLIRoleArn
+            Action: 
+              - "kms:Encrypt"
+              - "kms:Decrypt"
+              - "kms:ReEncrypt*"
+              - "kms:GenerateDataKey*"
+              - "kms:DescribeKey"
+            Resource: "*"
+Outputs:
+  FireboxKmsKeyArn:
+    Description: Firbox KMS Key
+    Value: !GetAtt FireboxKmsKey.Arn
+    Export:
+      Name: "FireboxKmsKeyArn"

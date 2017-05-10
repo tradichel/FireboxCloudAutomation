@@ -1,0 +1,25 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Firebox Configuration Lambda"
+Resources:
+  FireboxConfigurationLambda:
+    Type: "AWS::Lambda::Function"
+    Properties: 
+      Code:
+        S3Bucket: !ImportValue FireboxPrivateBucket
+        S3Key: fireboxconfig.zip
+      Description: Firebox Lambda to Execute CLI Commands
+      Environment:
+        Variables:
+          Test: Value
+      FunctionName: ConfigureFirebox
+      Handler: configure_firebox
+      KmsKeyArn: !ImportValue FireboxKmsKeyArn
+      MemorySize: 128
+      Role: !ImportValue FireboxLambdaCLIRoleArn
+      Runtime: python3.6
+      Timeout: 3
+      VpcConfig:
+        SecurityGroupIds:
+          - !ImportValue FireboxSecurityGroup
+        SubnetIds:
+          - !ImportValue FireboxPrivateSubnet
