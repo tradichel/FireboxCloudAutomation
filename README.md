@@ -38,9 +38,6 @@ Before You Run This Script:
     More about cloning repos:
     https://git-scm.com/docs/git-clone
 
-    Create an EC2 Key (SSH Key) so you can automate configuration of your firebox 
-    http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html
-
     If you are using Windows install a bash shell:
     https://www.howtogeek.com/249966/how-to-install-and-use-the-linux-bash-shell-on-windows-10/
 
