@@ -64,7 +64,7 @@ fi
 
 #if no errors create the stack
 echo "Executing: $action with $user as admin user with ips: $adminips"
-. ./execute/action.sh $action $keyname $user $adminips
+. ./execute/action.sh $action $user $adminips
 
 rm *.txt
 #dt=$(date)

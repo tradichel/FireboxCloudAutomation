@@ -1,5 +1,5 @@
 #!/bin/sh
-action=$1; keyname=$2; adminuser=$3; admincidr=$4
+action=$1; adminuser=$3; admincidr=$4;keyname="firebox-cli-ec2-key"
 
 #stack = file name less the .yaml extension
 function modify_stack(){
@@ -121,6 +121,7 @@ function wait_to_complete () {
     log_errors $stack $action
 }
 
+
 #---Start of Script---#
 #reverse of create on delete
 if [ "$action" == "delete" ] 
@@ -164,7 +165,11 @@ then
 
     modify_stack $action "nat" stack[@] 
 
-else 
+    ./execute/keypair.sh $action $keyname
+
+else #create/update
+
+    ./execute/keypair.sh $action $keyname
 
     stack=(
         "vpc" 
