@@ -1,5 +1,5 @@
 #!/bin/sh
-action=$1; stack=$2; template=$3; 
+action=$1; stack=$2; template=$3;parameters=$4;
 capabilities="--capabilities CAPABILITY_NAMED_IAM"
 
 if [ "$stack" == "" ] 
@@ -11,20 +11,9 @@ fi
 if [ "$action" == "" ]  
 then
 	echo "* Error: Action is required."
+
 	exit
 fi
-
-#There is a better long term way to do this but just for example purposes:
-if [ "$stack" == "firebox" ]
-then
-    parameters="--parameters ParameterKey=ParamKeyName,ParameterValue=$keyname"
-else
-    if [ "$stack" == "s3bucketpolicy" ]
-    then
-        parameters="--parameters ParameterKey=ParamAdminCidr,ParameterValue=$admincidr ParameterKey=ParamAdminUser,ParameterValue=$adminuser"
-    fi
-fi
-
 
 echo "***RUN TEMPLATE***"
 echo "* $action stack name: $stack $capabilities $parameters"

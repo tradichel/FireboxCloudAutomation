@@ -3,7 +3,7 @@ action=$1; keyname=$2; adminuser=$3; admincidr=$4
 
 #stack = file name less the .yaml extension
 function modify_stack(){
-    action=$1;config=$2;
+    local action=$1;local config=$2;
     declare -a stackarray=("${!3}")
     for (( i = 0 ; i < ${#stackarray[@]} ; i++ ))
     do
@@ -13,33 +13,46 @@ function modify_stack(){
 }
 
 function run_template () {
-    local action=$1; local config=$2; local stack=$3
+    local action=$1; local config=$2; local stack=$3;local parameters=""
+
     template="file://resources/firebox-$config/$stack.yaml"
     stackname="firebox-$config-$stack"
     aws cloudformation describe-stacks --stack-name $stackname > $stackname.txt  2>&1  
     exists=$(./execute/get_value.sh $stackname.txt "StackId")
-    vaction=$(validate_action "$exists" "$action" "$stackname")
+    vaction=$(validate_action "$exists" "$action" "$stackname" "$config")
     
-    if [ "$vaction" == "noupdates" ]; then echo $vaction; return; fi
+    if [ "$vaction" == "noupdates" ]; then echo "$vaction"; return; fi
 
-    ./execute/run_template.sh "$vaction" "$stackname" "$template"
+    #There is a better long term way to do this but just for example purposes:
+    if [ "$stack" == "firebox" ]
+    then
+        parameters="--parameters ParameterKey=ParamKeyName,ParameterValue=$keyname"
+    else
+        if [ "$stack" == "s3bucketpolicy" ]
+        then
+            parameters="--parameters ParameterKey=ParamAdminCidr,ParameterValue=$admincidr ParameterKey=ParamAdminUser,ParameterValue=$adminuser"
+        fi
+    fi
+
+    ./execute/run_template.sh "$vaction" "$stackname" "$template" "$parameters"
    
    if [ -f $stackname.txt ]; then
 
         noupdates="$(cat $stackname.txt | grep 'No updates')"
-        if [ "$noupdates" != "" ]; then return; fi
+        if [ "$noupdates" != "" ]; then echo "noupdates to stack"; return; fi
 
         err="$(cat $stackname.txt | grep 'error\|failed')"
-        if [ "$err" != "" ]; then echo $err; exit; fi
+        if [ "$err" != "" ]; then echo "$err"; exit; fi
         
         wait_to_complete $action $config $stackname
+
     else
-        exit
+        echo "stack output file does not exist: $stackname.txt"
     fi
 }
 
 function validate_action(){
-    exists=$1;action=$2;stackname=$3
+    local exists=$1;local action=$2;local stackname=$3;local config=$4;
 
     if [ "$action" == "delete" ]; then
         if [ "$exists" == "" ]; then action="noupdates"; fi
@@ -60,7 +73,6 @@ function validate_action(){
             ./execute/run_template.sh "delete" "$stackname"
             wait_to_complete "delete" $config $stackname
             action="create"
-            return
             ;;
           *)
             action="update"
@@ -73,7 +85,7 @@ function validate_action(){
 }
 
 function log_errors(){
-    stackname=$1;action=$2
+    local stackname=$1;local action=$2
 
     aws cloudformation describe-stacks --stack-name $stackname > $stackname.txt  2>&1  
     exists=$(./execute/get_value.sh $stackname.txt "StackId")
@@ -85,7 +97,7 @@ function log_errors(){
         echo "$stack status: $status"
         case "$status" in 
             UPDATE_COMPLETE|CREATE_COMPLETE)   
-                break
+                return
                 ;;
             *)
                 cat $stackname.txt
@@ -102,8 +114,7 @@ function log_errors(){
 }
 
 function wait_to_complete () {
-
-    action=$1; config=$2; stack=$3
+    local action=$1; local config=$2; local stack=$3
     
     ./execute/wait.sh $action $stack  
     
@@ -180,7 +191,7 @@ else
 
     stack=(
         "kmskey"
-        "lambda"
+        #"lambda"
     )
 
     modify_stack $action "lambda" stack[@] 
