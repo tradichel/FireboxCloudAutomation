@@ -22,6 +22,8 @@ Before You Run This Script:
 
     Enable MFA on your user ID that is used to run this script:
     http://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_mfa_enable_virtual.html
+
+    More about AWS IAM Best Practices (like MFA)
     http://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html
 
     Install and configure the AWS CLI with your access key ID, secret key and region: 
