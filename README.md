@@ -72,8 +72,10 @@ Check out what was built and logs in the AWS Console.
 
 To Do:
 
-    Lambda function not yet complete
-    Upload EC2 Key Pair to Bucket - in progress.
+    Delete EC2 keypair on delete
+    Fix an issue with existing stacks that failed on re-run
+    Deploy Lambda function
+    Sample configurations
 
 Details:
 

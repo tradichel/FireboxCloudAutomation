@@ -62,27 +62,10 @@ then
     fi
 fi
 
-keyname="firebox-cli-ec2-key"
-echo ""
-echo "* ---- NOTE --------------------------------------------"
-echo "* Creating EC2 keypair: $keyname"
-echo "* Do NOT check in keys to public source control systems."
-echo "* Keys are passwords. Protect them!"
-echo "* This github repository excludes .pem and .PEM files in the .gitignore file"
-echo "* https://git-scm.com/docs/gitignore"
-echo "* ------------------------------------------------------"
-echo ""
-aws ec2 describe-key-pairs --key-name $keyname > ec2key.txt  2>&1  
-noexist=$(cat ec2key.txt | grep "does not exist")
-if [ "$noexist" != "" ]
-then
-    aws ec2 create-key-pair --key-name $keyname --query 'KeyMaterial' --output text > $keyname.pem
-    chmod 600 $keyname.pem
-fi
-
 #if no errors create the stack
 echo "Executing: $action with $user as admin user with ips: $adminips"
 . ./execute/action.sh $action $keyname $user $adminips
 
+rm *.txt
 #dt=$(date)
 echo "Done"
