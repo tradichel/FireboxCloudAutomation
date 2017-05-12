@@ -2,6 +2,8 @@
 action=$1; stack=$2; template=$3;parameters=$4;
 capabilities="--capabilities CAPABILITY_NAMED_IAM"
 
+echo "$action $stack $template $paramters"
+
 if [ "$stack" == "" ] 
 then
 	echo "* Error: Stack name is required."

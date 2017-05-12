@@ -18,57 +18,53 @@ Parameters:
     Default: "0.0.0.0/0"
     Description: "Outbound traffic allowed instiated from Firebox to this CIDR"
 Resources:
-  #To start no rules in our out
-  #Rules will be added later to allow valid traffic through the firewall
-  PublicFireboxSecurityGroup:
+  FireboxPublicSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: "Public Firebox Security Group"
       SecurityGroupEgress:
-      #- CidrIp: 
-      #    Ref: ParamAllowedOutboundFromFirebox
-      #  IpProtocol: "-1"
-      #SecurityGroupIngress:
-      #- CidrIp: 
-      #    Ref: ParamAllowedInboundToFirebox
-      #  IpProtocol: "-1"
+      - CidrIp: 
+          Ref: ParamAllowedOutboundFromFirebox
+        IpProtocol: "-1"
+      SecurityGroupIngress:
+      - CidrIp: 
+          Ref: ParamAllowedInboundToFirebox
+        IpProtocol: "-1"
       VpcId: 
         !ImportValue FireboxVPC
       Tags:
       - Key: Name
-        Value: PublicFireboxSecurityGroup
+        Value: FireboxPublicSecurityGroup
       - Key: Stack
         Value: 
           Ref: ParamStackName
-   #To start, no rules in our out
-   #Rules will be added later
-   PrivateFireboxSecurityGroup:
+  FireboxPrivateSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: "Private Firebox Security Group"
-      #SecurityGroupEgress:
-      #- CidrIp: 
-      #    Ref: ParamAllowedOutboundFromFirebox
-      #  IpProtocol: "-1"
-      #SecurityGroupIngress:
-      #- CidrIp: 
-      #    Ref: ParamAllowedInboundToFirebox
-      #  IpProtocol: "-1"
+      SecurityGroupEgress:
+      - CidrIp: 
+          Ref: ParamAllowedOutboundFromFirebox
+        IpProtocol: "-1"
+      SecurityGroupIngress:
+      - CidrIp: 
+          Ref: ParamAllowedInboundToFirebox
+        IpProtocol: "-1"
       VpcId: 
         !ImportValue FireboxVPC
       Tags:
       - Key: Name
-        Value: PrivateFireboxSecurityGroup
+        Value: FireboxPrivateSecurityGroup
       - Key: Stack
         Value: 
           Ref: ParamStackName
 Outputs:
-  PublicFireboxSecurityGroup:
-    Value: !Ref PublicFireboxSecurityGroup
+  FireboxPublicSecurityGroup:
+    Value: !Ref FireboxPublicSecurityGroup
     Export:
-      Name: "PublicFireboxSecurityGroup"
-  PrivateFireboxSecurityGroup:
-    Value: !Ref PrivateFireboxSecurityGroup
+      Name: "FireboxPublicSecurityGroup"
+  FireboxPrivateSecurityGroup:
+    Value: !Ref FireboxPrivateSecurityGroup
     Export:
-      Name: "PrivateFireboxSecurityGroup"
+      Name: "FireboxPrivateSecurityGroup"
 

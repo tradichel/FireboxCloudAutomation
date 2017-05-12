@@ -6,12 +6,11 @@ echo "$action key $keyname"
 aws ec2 describe-key-pairs --key-name $keyname > ec2key.txt  2>&1  
 noexist=$(cat ec2key.txt | grep "does not exist")
 
-echo $noexist
-
 if [ "$noexist" == "" ]
 then
     if [ "$action" == "delete" ]; then
         aws ec2 delete-key-pair --key-name $keyname
+        rm -f $keyname.pem
     fi
 else
     if [ "$action" == "create" ]; then

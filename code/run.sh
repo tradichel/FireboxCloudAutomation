@@ -19,7 +19,7 @@ done
 
 dt=$(date)
 region=$(aws configure get region)
-rm *.txt
+rm -f *.txt
 echo "***"
 echo "* Begin: $dt" 
 echo "* ---- NOTE --------------------------------------------"
@@ -66,6 +66,6 @@ fi
 echo "Executing: $action with $user as admin user with ips: $adminips"
 . ./execute/action.sh $action $user $adminips
 
-rm *.txt
+rm -f *.txt
 #dt=$(date)
 echo "Done"

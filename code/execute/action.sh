@@ -20,8 +20,16 @@ function run_template () {
     aws cloudformation describe-stacks --stack-name $stackname > $stackname.txt  2>&1  
     exists=$(./execute/get_value.sh $stackname.txt "StackId")
     vaction=$(validate_action "$exists" "$action" "$stackname" "$config")
-    
-    if [ "$vaction" == "noupdates" ]; then echo "$vaction"; return; fi
+
+    if [ "$vaction" == "fail" ]; then
+        ./execute/run_template.sh "delete" "$stackname"
+        wait_to_complete "delete" $config $stackname
+        action="create"
+    else
+        action="$vaction"
+    fi
+
+    if [ "$action" == "noupdates" ]; then echo "$action"; return; fi
 
     #There is a better long term way to do this but just for example purposes:
     if [ "$stack" == "firebox" ]
@@ -34,7 +42,10 @@ function run_template () {
         fi
     fi
 
-    ./execute/run_template.sh "$vaction" "$stackname" "$template" "$parameters"
+    # this errors out when there is a failed stack. WHY.
+    # the stack delete happens OK in validte_action
+    # THEN the action should come out as "create"
+    ./execute/run_template.sh "$action" "$stackname" "$template" "$parameters"
    
    if [ -f $stackname.txt ]; then
 
@@ -70,9 +81,7 @@ function validate_action(){
         status=$(./execute/get_value.sh $stackname.txt "StackStatus")
         case "$status" in 
             ROLLBACK_COMPLETE|ROLLBACK_FAILED|DELETE_FAILED)
-            ./execute/run_template.sh "delete" "$stackname"
-            wait_to_complete "delete" $config $stackname
-            action="create"
+            action="fail"
             ;;
           *)
             action="update"

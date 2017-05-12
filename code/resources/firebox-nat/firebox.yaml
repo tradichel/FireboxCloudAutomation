@@ -28,7 +28,7 @@ Resources:
     Properties: 
       Description: Firebox Public Network Interface
       GroupSet:
-        - !ImportValue FireboxSecurityGroup
+        - !ImportValue FireboxPublicSecurityGroup
       SubnetId: 
         !ImportValue FireboxPublicSubnet
       SourceDestCheck: false
@@ -37,7 +37,7 @@ Resources:
     Properties: 
       Description: Firebox Private Network Interface
       GroupSet: 
-        - !ImportValue FireboxSecurityGroup
+        - !ImportValue FireboxPrivateSecurityGroup
       SubnetId: 
         !ImportValue FireboxPrivateSubnet
   Firebox: 

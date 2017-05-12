@@ -53,7 +53,7 @@ Resources:
       GroupDescription: "Management Security Group Allowed to Access FB CLI"
       SecurityGroupEgress:
       - DestinationSecurityGroupId:
-          !ImportValue FireboxSecurityGroup
+          !ImportValue FireboxPrivateSecurityGroup
         IpProtocol: "tcp"
         FromPort: !Ref ParamCLIPort
         ToPort: !Ref ParamCLIPort
