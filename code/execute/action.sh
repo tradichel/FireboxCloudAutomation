@@ -1,5 +1,7 @@
 #!/bin/sh
-action=$1; adminuser=$3; admincidr=$4;keyname="firebox-cli-ec2-key"
+action=$1; adminuser=$2; admincidr=$3;
+
+keyname="firebox-cli-ec2-key"
 
 #stack = file name less the .yaml extension
 function modify_stack(){
@@ -7,48 +9,30 @@ function modify_stack(){
     declare -a stackarray=("${!3}")
     for (( i = 0 ; i < ${#stackarray[@]} ; i++ ))
     do
-        echo "modify_stack: " $action $config "${stackarray[$i]}"
         run_template "$action" "$config" "${stackarray[$i]}"
     done
 }
 
 function run_template () {
-    local action=$1; local config=$2; local stack=$3;local parameters=""
-
+    local action=$1; local config=$2; local stack=$3;local parameters="";
+ 
     template="file://resources/firebox-$config/$stack.yaml"
     stackname="firebox-$config-$stack"
-    aws cloudformation describe-stacks --stack-name $stackname > $stackname.txt  2>&1  
-    exists=$(./execute/get_value.sh $stackname.txt "StackId")
-    vaction=$(validate_action "$exists" "$action" "$stackname" "$config")
-
-    if [ "$vaction" == "fail" ]; then
-        ./execute/run_template.sh "delete" "$stackname"
-        wait_to_complete "delete" $config $stackname
-        action="create"
-    else
-        action="$vaction"
-    fi
+    exists=$(stack_exists $stackname)
+    parameters=$(get_parameters $stack)
+    action=$(validate_action "$exists" "$action" "$stackname" "$config")
 
     if [ "$action" == "noupdates" ]; then echo "$action"; return; fi
-
-    #There is a better long term way to do this but just for example purposes:
-    if [ "$stack" == "firebox" ]
-    then
-        parameters="--parameters ParameterKey=ParamKeyName,ParameterValue=$keyname"
-    else
-        if [ "$stack" == "s3bucketpolicy" ]
-        then
-            parameters="--parameters ParameterKey=ParamAdminCidr,ParameterValue=$admincidr ParameterKey=ParamAdminUser,ParameterValue=$adminuser"
-        fi
+    
+    if [ "$action" == "fail" ]; then
+        ./execute/run_template.sh "delete" "$stackname" "$parameters"
+        wait_to_complete "delete" $config $stackname
+        action="create"
     fi
 
-    # this errors out when there is a failed stack. WHY.
-    # the stack delete happens OK in validte_action
-    # THEN the action should come out as "create"
     ./execute/run_template.sh "$action" "$stackname" "$template" "$parameters"
    
    if [ -f $stackname.txt ]; then
-
         noupdates="$(cat $stackname.txt | grep 'No updates')"
         if [ "$noupdates" != "" ]; then echo "noupdates to stack"; return; fi
 
@@ -56,9 +40,28 @@ function run_template () {
         if [ "$err" != "" ]; then echo "$err"; exit; fi
         
         wait_to_complete $action $config $stackname
-
     else
         echo "stack output file does not exist: $stackname.txt"
+        exit
+    fi
+}
+
+function stack_exists(){
+    local stackname=$1
+    aws cloudformation describe-stacks --stack-name $stackname > $stackname.txt  2>&1  
+    exists=$(./execute/get_value.sh $stackname.txt "StackId")
+    echo "$exists"
+}
+
+function get_parameters(){
+    local stack=$1
+
+    if [ "$stack" == "firebox" ]; then
+        echo "--parameters ParameterKey=ParamKeyName,ParameterValue=$keyname"
+    fi
+
+    if [ "$stack" == "s3bucketpolicy" ]; then
+        echo "--parameters ParameterKey=ParamAdminCidr,ParameterValue=$admincidr ParameterKey=ParamAdminUser,ParameterValue=$adminuser"
     fi
 }
 
@@ -105,7 +108,7 @@ function log_errors(){
         status=$(./execute/get_value.sh $stackname.txt "StackStatus")
         echo "$stack status: $status"
         case "$status" in 
-            UPDATE_COMPLETE|CREATE_COMPLETE)   
+            UPDATE_COMPLETE|CREATE_COMPLETE|UPDATE_ROLLBACK_COMPLETE)   
                 return
                 ;;
             *)
