@@ -20,6 +20,6 @@ Resources:
       Timeout: 3
       VpcConfig:
         SecurityGroupIds:
-          - !ImportValue FireboxSecurityGroup
+          - !ImportValue FireboxManagementSecurityGroup
         SubnetIds:
-          - !ImportValue FireboxPrivateSubnet
+          - !ImportValue FireboxCLISubnet

@@ -41,7 +41,7 @@ function run_template () {
         
         wait_to_complete $action $config $stackname
     else
-        echo "stack output file does not exist: $stackname.txt"
+        echo "Something is amiss. Stack output file does not exist: $stackname.txt"
         exit
     fi
 }
@@ -54,15 +54,62 @@ function stack_exists(){
 }
 
 function get_parameters(){
-    local stack=$1
+    stack=$1
 
     if [ "$stack" == "firebox" ]; then
-        echo "--parameters ParameterKey=ParamKeyName,ParameterValue=$keyname"
+        echo "--parameters ParameterKey=ParamKeyName,ParameterValue=$keyname";return
     fi
 
     if [ "$stack" == "s3bucketpolicy" ]; then
-        echo "--parameters ParameterKey=ParamAdminCidr,ParameterValue=$admincidr ParameterKey=ParamAdminUser,ParameterValue=$adminuser"
+        echo "--parameters ParameterKey=ParamAdminCidr,ParameterValue=$admincidr ParameterKey=ParamAdminUser,ParameterValue=$adminuser";return
     fi
+
+    if [ "$stack" == "securitygroups" ]; then
+
+        #####
+        #  
+        #  Ports and Domain Names Used By WatchGuard Firebox as of 5/12/2017
+        #  https://services.watchguard.com:TCP 443
+        #  https://feedback.watchguard.com:TCP 443
+        #  https://ask.watchguard.com:443 TCP
+        #  tdr-fbla-eu.watchguard.com:4115 TCP
+        #  tdr-fbla-na.watchguard.com:4115 TCP
+        #  web.repauth.watchguard.com:53 UDP
+        #
+        #  NOTE: This code and security group template unfortunately
+        #  make certain hard-coded assumptions. Should the number of IPs
+        #  or domains change this script would need to be adjusted.
+        #  It could also be written in a more robust way, possibly
+        #  using a more up to date language. Additionally if the IPs
+        #  themselves change then this firebox is open from an invalid IP 
+        #  address, putting it at risk. So it would be better to monitor 
+        #  for changes (or possibly for us to find a way to stablize these 
+        #  IP addresses).
+        #
+        #  But for today, this works and this is just for initial testing.
+        #
+        ####
+
+        parameters="$(get_ip_parameters 'services')"
+        parameters="$parameters $(get_ip_parameters 'feedback')"
+        parameters="$parameters $(get_ip_parameters 'ask')"
+        parameters="$parameters $(get_ip_parameters 'tdr-fbla-eu')"
+        parameters="$parameters $(get_ip_parameters 'tdr-fbla-na')"
+        parameters="$parameters $(get_ip_parameters 'web.repauth')"
+        
+        echo "--parameters $parameters"
+
+    fi     
+}
+
+function get_ip_parameters(){
+    name=$1;index=1;p=""
+    ips=$(dig +short $name.watchguard.com | grep '^[1-9]')
+    name=$(echo $name | sed -e 's/[.-]//g')
+    for ip in $ips; do 
+        p="$p ParameterKey=\"param$name$((index++))\",ParameterValue=\"$ip/32\""
+    done
+    echo $p
 }
 
 function validate_action(){
@@ -133,7 +180,6 @@ function wait_to_complete () {
     log_errors $stack $action
 }
 
-
 #---Start of Script---#
 #reverse of create on delete
 if [ "$action" == "delete" ] 
@@ -145,7 +191,6 @@ then
         "flowlogs"
         "flowlogsrole"
     )
-
     
     modify_stack $action "flowlogs" stack[@] 
 

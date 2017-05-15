@@ -14,6 +14,8 @@ Parameters:
     Default: "10.0.2.0/24"
     Description: "CIDR block for lambda function executing CLI commands"
 Resources:
+  #subnet for resources that are allowed to connect for Firebox via CLI
+  #the NACLs could be locked down tighter
   FireboxCLISubnet:
     Type: AWS::EC2::Subnet
     Properties:
@@ -43,10 +45,6 @@ Resources:
         Ref: FireboxCLIRouteTable
       SubnetId: 
         Ref: FireboxCLISubnet
-  #route will include route for VPC
-  #NACL wide open by default
-  #TODO: allow management port only to FB
-  #TODO: Block port 4118 from web server subnet
   ManagementSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -65,8 +63,17 @@ Resources:
       - Key: Stack
         Value: 
           Ref: ParamStackName 
-#TODO: Further restrictions on Firebox SG/Subnet
-#TODO: Then Allow management on 4118 to Firebox
+  #The CLI security group can send traffic to the 
+  #Private Firebox Security Group on management port
+  #http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-security-group-ingress.html
+  PrivateSecurityGroupCLIIngress:
+    Type: "AWS::EC2::SecurityGroupIngress"
+    Properties: 
+      FromPort: !Ref ParamCLIPort
+      GroupId: !ImportValue FireboxPrivateSecurityGroup
+      IpProtocol: "tcp"
+      SourceSecurityGroupId: !Ref ManagementSecurityGroup
+      ToPort: !Ref ParamCLIPort
 Outputs:
   FireboxCLISubnet:
     Value: !Ref FireboxCLISubnet

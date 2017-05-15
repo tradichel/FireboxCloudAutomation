@@ -1,70 +1,213 @@
-AWSTemplateFormatVersion: "2010-09-09"
-Description: "Firebox Cloud Security Groups"
+AWSTemplateFormatVersion: 2010-09-09
+Description: Firebox Cloud Security Groups
+
 Parameters: 
   ParamStackName: 
     Type: String
-    Default: "firebox-trial"
-    Description: "Name used in resource tags and names"
-  ParamAllowedInboundToInstances:
+    Default: firebox-trial
+    Description: Name used in resource tags and names
+  ParamCLIPort: 
     Type: String
-    Default: "0.0.0.0/0"
-    Description: "Inbound traffic allowed to instances from this CIDR"
-  ParamAllowedInboundToFirebox:
+    Default: 4118
+    Description: Open port for CLI access to Firebox on port 4118
+  #watchguardips-out for security services
+  paramservices1:
     Type: String
-    Default: "0.0.0.0/0"
-    Description: "Inbound traffic allowed to Firebox from this CIDR"
-  ParamAllowedOutboundFromFirebox:
+  paramfeedback1:
     Type: String
-    Default: "0.0.0.0/0"
-    Description: "Outbound traffic allowed instiated from Firebox to this CIDR"
+  paramask1:
+    Type: String
+  paramtdrfblana1:
+    Type: String
+    Default: ""
+  paramtdrfblana2:
+    Type: String
+    Default: ""
+  paramtdrfblaeu1:
+    Type: String
+    Default: ""
+  paramtdrfblaeu2:
+    Type: String
+    Default: ""
+  paramwebrepauth1:
+    Type: String
+    Default: ""
+  paramwebrepauth2:
+    Type: String
+    Default: ""
+  paramwebrepauth3:
+    Type: String
+    Default: ""
+  paramwebrepauth4:
+    Type: String
+    Default: ""
+  paramwebrepauth5:
+    Type: String
+    Default: ""
+
+Conditions:
+  #make sure all the IPs exist before we attempt to create
+  #rules for them. This handles some, but not all, DNS changes
+  condtdrfblana1: !Equals [ !Ref paramtdrfblana1, "" ]
+  condtdrfblana2: !Equals [ !Ref paramtdrfblana2, "" ]
+  condtdrfblaeu1: !Equals [ !Ref paramtdrfblaeu1, "" ]
+  condtdrfblaeu2: !Equals [ !Ref paramtdrfblaeu2, "" ]
+  condwebrepauth1: !Equals [ !Ref paramwebrepauth1, ""  ]
+  condwebrepauth2: !Equals [ !Ref paramwebrepauth2, ""  ]
+  condwebrepauth3: !Equals [ !Ref paramwebrepauth3, ""  ]
+  condwebrepauth4: !Equals [ !Ref paramwebrepauth4, ""  ]
+  condwebrepauth5: !Equals [ !Ref paramwebrepauth5, ""  ]
+  
 Resources:
+
+  #http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-security-group-rule.html
   FireboxPublicSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: "Public Firebox Security Group"
-      SecurityGroupEgress:
-      - CidrIp: 
-          Ref: ParamAllowedOutboundFromFirebox
-        IpProtocol: "-1"
-      SecurityGroupIngress:
-      - CidrIp: 
-          Ref: ParamAllowedInboundToFirebox
-        IpProtocol: "-1"
-      VpcId: 
-        !ImportValue FireboxVPC
+      GroupDescription: Public Firebox Security Group
+      #TODO: verify no ingress created
+      SecurityGroupEgress: 
+      - CidrIp: !Ref paramservices1
+        IpProtocol: tcp
+        FromPort: 443
+        ToPort: 443
+      - CidrIp: !Ref paramfeedback1
+        IpProtocol: tcp
+        FromPort: 443
+        ToPort: 443
+      - CidrIp: !Ref paramask1
+        IpProtocol: tcp
+        FromPort: 443
+        ToPort: 443
+      VpcId: !ImportValue FireboxVPC
       Tags:
       - Key: Name
         Value: FireboxPublicSecurityGroup
       - Key: Stack
         Value: 
           Ref: ParamStackName
+
+  #Create conditional egress rules
+  #http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-security-group-egress.html
+  #Note: TDR not available on pay-as-you-go version of Firebox Cloud
+  FireboxPublicEgressWG1:
+    Type: AWS::EC2::SecurityGroupEgress
+    Condition: condtdrfblana1
+    Properties:
+      GroupId: !Ref FireboxPublicSecurityGroup
+      CidrIp: !Ref paramtdrfblana1
+      FromPort: 4115
+      ToPort: 4115
+      IpProtocol: tcp
+
+  FireboxPublicEgressWG2:
+    Type: AWS::EC2::SecurityGroupEgress
+    Condition: condtdrfblana2
+    Properties:
+      GroupId: !Ref FireboxPublicSecurityGroup
+      CidrIp: !Ref paramtdrfblana2
+      FromPort: 4115
+      ToPort: 4115
+      IpProtocol: tcp
+
+  FireboxPublicEgressWG3:
+    Type: AWS::EC2::SecurityGroupEgress
+    Condition: condtdrfblaeu1
+    Properties:
+      GroupId: !Ref FireboxPublicSecurityGroup
+      CidrIp: !Ref paramtdrfblaeu1
+      FromPort: 4115
+      ToPort: 4115
+      IpProtocol: tcp
+
+  FireboxPublicEgressWG4:
+    Type: AWS::EC2::SecurityGroupEgress
+    Condition: condtdrfblaeu2
+    Properties:
+      GroupId: !Ref FireboxPublicSecurityGroup
+      CidrIp: !Ref paramtdrfblaeu2
+      FromPort: 4115
+      ToPort: 4115
+      IpProtocol: tcp
+
+  FireboxPublicEgressWG5:
+    Type: AWS::EC2::SecurityGroupEgress
+    Condition: condwebrepauth1
+    Properties:
+      GroupId: !Ref FireboxPublicSecurityGroup
+      CidrIp: !Ref paramwebrepauth1
+      FromPort: 53
+      ToPort: 53
+      IpProtocol: udp
+
+  FireboxPublicEgressWG6:
+    Type: AWS::EC2::SecurityGroupEgress
+    Condition: condwebrepauth2
+    Properties:
+      GroupId: !Ref FireboxPublicSecurityGroup
+      CidrIp: !Ref paramwebrepauth2
+      FromPort: 53
+      ToPort: 53
+      IpProtocol: udp
+
+  FireboxPublicEgressWG7:
+    Type: AWS::EC2::SecurityGroupEgress
+    Condition: condwebrepauth2
+    Properties:
+      GroupId: !Ref FireboxPublicSecurityGroup
+      CidrIp: !Ref paramwebrepauth2
+      FromPort: 53
+      ToPort: 53
+      IpProtocol: udp
+
+  FireboxPublicEgressWG8:
+    Type: AWS::EC2::SecurityGroupEgress
+    Condition: condwebrepauth4
+    Properties:
+      GroupId: !Ref FireboxPublicSecurityGroup
+      CidrIp: !Ref paramwebrepauth4
+      FromPort: 53
+      ToPort: 53
+      IpProtocol: udp
+
+  FireboxPublicEgressWG9:
+    Type: AWS::EC2::SecurityGroupEgress
+    Condition: condwebrepauth5
+    Properties:
+      GroupId: !Ref FireboxPublicSecurityGroup
+      CidrIp: !Ref paramwebrepauth5
+      FromPort: 53
+      ToPort: 53
+      IpProtocol: udp
+
+  #Private security group associated with Firebox Cloud Private ENI
   FireboxPrivateSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: "Private Firebox Security Group"
+      GroupDescription: Private Firebox Security Group
+      #If no outbound rule is created the whole Internet is allowed
+      #by default. WHY???? 
       SecurityGroupEgress:
-      - CidrIp: 
-          Ref: ParamAllowedOutboundFromFirebox
-        IpProtocol: "-1"
-      SecurityGroupIngress:
-      - CidrIp: 
-          Ref: ParamAllowedInboundToFirebox
-        IpProtocol: "-1"
-      VpcId: 
-        !ImportValue FireboxVPC
+        #TODO: Limit this to VPC CIDR - Get Output
+        CidrIp: 10.0.0.0/8
+        FromPort: !Ref ParamCLIPort
+        ToPort: !Ref ParamCLIPort
+        IpProtocol: -1
+      VpcId: !ImportValue FireboxVPC
       Tags:
       - Key: Name
         Value: FireboxPrivateSecurityGroup
       - Key: Stack
         Value: 
           Ref: ParamStackName
+
 Outputs:
   FireboxPublicSecurityGroup:
     Value: !Ref FireboxPublicSecurityGroup
     Export:
-      Name: "FireboxPublicSecurityGroup"
+      Name: FireboxPublicSecurityGroup
   FireboxPrivateSecurityGroup:
     Value: !Ref FireboxPrivateSecurityGroup
     Export:
-      Name: "FireboxPrivateSecurityGroup"
+      Name: FireboxPrivateSecurityGroup
 
