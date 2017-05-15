@@ -125,8 +125,7 @@ function validate_action(){
         action="create"
     fi
 
-    if [ "$exists" != "" ]
-    then 
+    if [ "$exists" != "" ]; then 
         aws cloudformation describe-stacks --stack-name $stackname > $stackname.txt  2>&1  
         status=$(./execute/get_value.sh $stackname.txt "StackStatus")
         case "$status" in 
@@ -149,8 +148,8 @@ function log_errors(){
     aws cloudformation describe-stacks --stack-name $stackname > $stackname.txt  2>&1  
     exists=$(./execute/get_value.sh $stackname.txt "StackId")
 
-    if [ "$exists" != "" ]
-    then
+    if [ "$exists" != "" ]; then
+
         aws cloudformation describe-stacks --stack-name $stackname > $stackname.txt  2>&1  
         status=$(./execute/get_value.sh $stackname.txt "StackStatus")
         echo "$stack status: $status"
@@ -174,16 +173,13 @@ function log_errors(){
 
 function wait_to_complete () {
     local action=$1; local config=$2; local stack=$3
-    
     ./execute/wait.sh $action $stack  
-    
     log_errors $stack $action
 }
 
 #---Start of Script---#
 #reverse of create on delete
-if [ "$action" == "delete" ] 
-then
+if [ "$action" == "delete" ]; then
 
     ./execute/delete_files.sh
 

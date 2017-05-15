@@ -2,28 +2,21 @@
 action=$1; stack=$2; template=$3; parameters=$4;
 capabilities="--capabilities CAPABILITY_NAMED_IAM"
 
-if [ "$stack" == "" ] 
-then
-	echo "* Error: Stack name is required."
-	exit
+if [ "$stack" == "" ]; then
+	echo "* Error: Stack name is required."; exit
 fi 
 
-if [ "$action" == "" ]  
-then
-	echo "* Error: Action is required."
-
-	exit
+if [ "$action" == "" ]; then
+	echo "* Error: Action is required."; exit
 fi
 
 echo "***RUN TEMPLATE***"
 
-if [ "$action" == "delete" ] 
-then
+if [ "$action" == "delete" ]; then
 	echo "* aws cloudformation delete-stack --stack-name $stack"
 	aws cloudformation delete-stack --stack-name $stack > $stack.txt  2>&1
 else
-	if [ "$template" == "" ] 
-	then
+	if [ "$template" == "" ]; then
 		echo "* Error: Stack template is required in parameter template in form file://filename"
 		exit
 	fi

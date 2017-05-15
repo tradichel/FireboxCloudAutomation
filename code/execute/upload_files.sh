@@ -10,20 +10,14 @@ bucket=$(./execute/get_output_value.sh "firebox-cli-s3bucket" "FireboxPrivateBuc
 aws s3 cp resources/firebox-lambda/fireboxconfig.zip s3://$bucket/fireboxconfig.zip --sse AES256 > upload.txt  2>&1  
 
 error=$(cat upload.txt | grep "error\|Unknown")
-
-if [ "$error" != "" ]
-then
-    echo "Error uploading fireboxconfig.zip: $error"
-    exit
+if [ "$error" != "" ]; then
+    echo "Error uploading fireboxconfig.zip: $error"; exit
 fi
 
 #upload EC2 Key Pair
 aws s3 cp $keyname.pem s3://$bucket/$keyname.pem --sse AES256 > upload.txt  2>&1  
 
 error=$(cat upload.txt | grep "error\|Unknown\|path")
-
-if [ "$error" != "" ]
-then
-    echo "Error uploading $keyname.pem: $error"
-    exit
+if [ "$error" != "" ]; then
+    echo "Error uploading $keyname.pem: $error"; exit
 fi
