@@ -71,10 +71,11 @@ Check out what was built and logs in the AWS Console.
 
 To Do:
 
-    Delete EC2 keypair on delete
-    Fix an issue with existing stacks that failed on re-run
-    Deploy Lambda function
-    Sample configurations
+    Deploy Lambda function / test CLI
+    Network CIDR Parameters / parameters.sh
+    Sample FB configurations
+    Whitelist Private Security Group Rules
+    Add IP address restrictions back to bucket policy
 
 Details:
 
