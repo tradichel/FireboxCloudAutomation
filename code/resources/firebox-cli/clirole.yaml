@@ -1,6 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: "Firebox Lambda CLI Role"
 Resources:
+
   FireboxCliRole: 
     Type: "AWS::IAM::Role"
     Properties: 
@@ -16,6 +17,9 @@ Resources:
             Action: 
               - "sts:AssumeRole"
       Path: "/"
+      ManagedPolicyArns: 
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+
   FireboxRolePolicy: 
     Type: "AWS::IAM::Policy"
     Properties: 

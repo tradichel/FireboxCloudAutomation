@@ -1,5 +1,9 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: "Firebox Cloud Lambda KMS Key"
+Parameters: 
+  ParamAdminUserArn: 
+    Type: String
+    Description: "Arn for Admin User"
 Resources:
   FireboxKmsKey:
     Type: "AWS::KMS::Key"
@@ -15,22 +19,9 @@ Resources:
             Sid: "Allow administration of the key"
             Effect: "Allow"
             Principal: 
-              #TODO: Principle should be the admin for KMS keys 
-              #AWS: "arn:aws:iam::[....aws account ...]:user/tradichel"
-              AWS: "*"
+              AWS: !Ref ParamAdminUserArn
             Action: 
-              - "kms:Create*"
-              - "kms:Describe*"
-              - "kms:Enable*"
-              - "kms:List*"
-              - "kms:Put*"
-              - "kms:Update*"
-              - "kms:Revoke*"
-              - "kms:Disable*"
-              - "kms:Get*"
-              - "kms:Delete*"
-              - "kms:ScheduleKeyDeletion"
-              - "kms:CancelKeyDeletion"
+              - "kms:*"
             Resource: "*"
           - 
             Sid: "Allow use of the key"

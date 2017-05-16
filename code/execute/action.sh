@@ -1,5 +1,5 @@
 #!/bin/sh
-action=$1; adminuser=$2; admincidr=$3;
+action=$1; adminuser=$2; admincidr=$3; adminuserarn=$4
 
 keyname="firebox-cli-ec2-key"
 
@@ -98,8 +98,13 @@ function get_parameters(){
         parameters="$parameters $(get_ip_parameters 'web.repauth')"
         
         echo "--parameters $parameters"
+        return
 
-    fi     
+    fi 
+
+    if [ "$stack" == "kmskey" ]; then
+        echo "--parameters ParameterKey=ParamAdminUserArn,ParameterValue=$adminuserarn";return
+    fi    
 }
 
 function get_ip_parameters(){
@@ -249,7 +254,7 @@ else #create/update
 
     stack=(
         "kmskey"
-        #"lambda"
+        "lambda"
     )
 
     modify_stack $action "lambda" stack[@] 

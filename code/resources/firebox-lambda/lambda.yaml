@@ -12,7 +12,7 @@ Resources:
         Variables:
           Test: Value
       FunctionName: ConfigureFirebox
-      Handler: configure_firebox
+      Handler: fireboxconfig.configure_firebox
       KmsKeyArn: !ImportValue FireboxKmsKeyArn
       MemorySize: 128
       Role: !ImportValue FireboxLambdaCLIRoleArn

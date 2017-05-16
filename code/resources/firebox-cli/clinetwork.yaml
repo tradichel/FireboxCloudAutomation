@@ -45,7 +45,7 @@ Resources:
         Ref: FireboxCLIRouteTable
       SubnetId: 
         Ref: FireboxCLISubnet
-  ManagementSecurityGroup:
+  FireboxManagementSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: "Management Security Group Allowed to Access FB CLI"
@@ -72,7 +72,7 @@ Resources:
       FromPort: !Ref ParamCLIPort
       GroupId: !ImportValue FireboxPrivateSecurityGroup
       IpProtocol: "tcp"
-      SourceSecurityGroupId: !Ref ManagementSecurityGroup
+      SourceSecurityGroupId: !Ref FireboxManagementSecurityGroup
       ToPort: !Ref ParamCLIPort
 Outputs:
   FireboxCLISubnet:
@@ -83,3 +83,7 @@ Outputs:
     Value: !Ref FireboxCLIRouteTable
     Export:
       Name: "FireboxCLIRouteTable"
+  FireboxManagementSecurityGroup:
+    Value: !Ref FireboxManagementSecurityGroup
+    Export:
+      Name: "FireboxManagementSecurityGroup"
