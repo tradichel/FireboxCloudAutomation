@@ -3,7 +3,7 @@ keyname=$1
 
 #zip up the python code for the lambda function
 if [ -f ./resources/firebox-lambda/fireboxconfig.zip ]; then rm ./resources/firebox-lambda/fireboxconfig.zip; fi
-zip ./resources/firebox-lambda/fireboxconfig.zip ./resources/firebox-lambda/python/fireboxconfig.py 
+zip -j ./resources/firebox-lambda/fireboxconfig.zip ./resources/firebox-lambda/python/fireboxconfig.py 
 
 #upload the lambda code to the bucket used by lambda cloudformation file
 bucket=$(./execute/get_output_value.sh "firebox-cli-s3bucket" "FireboxPrivateBucket")
