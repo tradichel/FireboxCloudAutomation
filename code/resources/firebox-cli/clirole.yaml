@@ -31,23 +31,12 @@ Resources:
             Effect: "Allow"
             Action: 
               - "s3:GetObject"
-            Resource: 
-              Fn::Join: 
-                - ""
-                - 
-                  - "arn:aws:s3:::"
-                  - !ImportValue FireboxPrivateBucket
-                  - "/*"
+            Resource: !ImportValue FireboxPrivateBucketResourcesArn
           - 
             Effect: "Allow"
             Action: 
               - "s3:ListBucket"
-            Resource: 
-              Fn::Join: 
-                - ""
-                - 
-                  - "arn:aws:s3:::"
-                  - !ImportValue FireboxPrivateBucket
+            Resource: !ImportValue FireboxPrivateBucketArn
       Roles: 
         - 
           !Ref FireboxCliRole

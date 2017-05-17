@@ -13,3 +13,24 @@ Outputs:
       !Ref FireboxPrivateBucket
     Export:
       Name: "FireboxPrivateBucket"
+  FireboxPrivateBucketArn:
+    Description: Firebox Private Bucket
+    Value: 
+      Fn::Join: 
+        - ""
+        - 
+          - "arn:aws:s3:::"
+          - !Ref FireboxPrivateBucket
+    Export:
+      Name: "FireboxPrivateBucketArn"
+  FireboxPrivateBucketResourcesArn:
+    Description: Firebox Private Bucket
+    Value: 
+      Fn::Join: 
+        - ""
+        - 
+          - "arn:aws:s3:::"
+          - !Ref FireboxPrivateBucket
+          - "/*"
+    Export:
+      Name: "FireboxPrivateBucketResourcesArn"

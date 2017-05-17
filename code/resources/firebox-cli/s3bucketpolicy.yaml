@@ -25,13 +25,7 @@ Resources:
             Action: 
               - "s3:PutObject"
             Effect: "Deny"
-            Resource: 
-              Fn::Join: 
-                - ""
-                - 
-                  - "arn:aws:s3:::"
-                  - !ImportValue FireboxPrivateBucket
-                  - "/*"
+            Resource: !ImportValue FireboxPrivateBucketResourcesArn
             Principal: "*"
             Condition: 
               StringNotEquals: 
@@ -42,13 +36,7 @@ Resources:
             Action: 
               - "s3:PutObject"
             Effect: "Deny"
-            Resource: 
-              Fn::Join: 
-                - ""
-                - 
-                  - "arn:aws:s3:::"
-                  - !ImportValue FireboxPrivateBucket
-                  - "/*"
+            Resource: !ImportValue FireboxPrivateBucketResourcesArn
             Principal: "*"
             Condition: 
               StringEquals: 
@@ -59,13 +47,7 @@ Resources:
             Action:
               - "s3:PutObject"
             Effect: "Deny"
-            Resource: 
-              Fn::Join: 
-                - ""
-                - 
-                  - "arn:aws:s3:::"
-                  - !ImportValue FireboxPrivateBucket
-                  - "/*"
+            Resource: !ImportValue FireboxPrivateBucketResourcesArn
             Principal: "*"
             Condition: 
               BoolIfExists: 
@@ -77,20 +59,12 @@ Resources:
           - 
             Sid: Firebox Admin User
             Action:
-              - "s3:*"
+              - "s3:PutObject"
+              - "s3:ListBucket"
             Effect: "Allow"
             Resource: 
-              - !Join 
-                - ""
-                - 
-                  - "arn:aws:s3:::"
-                  - !ImportValue FireboxPrivateBucket
-                  - "/*"
-              - !Join 
-                - ""
-                - 
-                  - "arn:aws:s3:::"
-                  - !ImportValue FireboxPrivateBucket
+              - !ImportValue FireboxPrivateBucketResourcesArn
+              - !ImportValue FireboxPrivateBucketArn
             Principal: 
               AWS:
                 Fn::Join: 
@@ -112,13 +86,7 @@ Resources:
             Action:
               - "s3:GetObject"
             Effect: "Allow"
-            Resource: 
-              Fn::Join: 
-                - ""
-                - 
-                  - "arn:aws:s3:::"
-                  - !ImportValue FireboxPrivateBucket
-                  - "/*"
+            Resource: !ImportValue FireboxPrivateBucketResourcesArn
             Principal: 
               AWS:
                 !ImportValue FireboxLambdaCLIRoleArn
@@ -127,12 +95,7 @@ Resources:
             Action:
               - "s3:ListBucket"
             Effect: "Allow"
-            Resource: 
-              Fn::Join: 
-                - ""
-                - 
-                  - "arn:aws:s3:::"
-                  - !ImportValue FireboxPrivateBucket
+            Resource: !ImportValue FireboxPrivateBucketArn
             Principal: 
               AWS:
                 !ImportValue FireboxLambdaCLIRoleArn

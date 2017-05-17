@@ -13,24 +13,20 @@ Resources:
     Properties: 
       PolicyDocument: 
         Statement: 
-          Action:
-            - "s3:GetObject"
-          Effect: "Allow"
-          Resource: 
-            Fn::Join: 
-              - ""
-              - 
-                - "arn:aws:s3:::"
-                - !ImportValue FireboxPrivateBucket
-                - "/GetObject"
-          Principal: 
-            AWS:
-              !ImportValue FireboxLambdaCLIRoleArn
+          - 
+            Effect: "Allow"
+            Action: 
+              - "s3:GetObject"
+            Resource: !ImportValue FireboxPrivateBucketResourcesArn
+          - 
+            Effect: "Allow"
+            Action: 
+              - "s3:ListBucket"
+            Resource: !ImportValue FireboxPrivateBucketArn
       RouteTableIds:
         - !ImportValue FireboxCLIRouteTable
       ServiceName: !Join ['', [com.amazonaws., !Ref 'AWS::Region', .s3]]
       VpcId: !ImportValue FireboxVPC
-
 Outputs:
   FireboxCLIS3Endpoint:
     Value: !Ref FireboxCLIS3Endpoint
