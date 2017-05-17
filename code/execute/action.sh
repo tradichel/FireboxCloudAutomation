@@ -254,8 +254,8 @@ else #create/update
         "clinetwork"
         "s3bucket"
         "clirole"
-        "s3bucketpolicy"
         "s3endpoint"
+        "s3bucketpolicy"
         "s3endpointegress"
 
     )
