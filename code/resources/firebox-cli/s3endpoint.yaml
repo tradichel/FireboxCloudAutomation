@@ -13,19 +13,14 @@ Resources:
     Properties: 
       PolicyDocument: 
         Statement: 
-        #temp allow all while resolving issues
           - 
-            Effect: "Allow"
-            Action: 
-              - "s3:GetObject"
-            Principle: "*"
+            Sid: "Allow-GetObject-from-Firebox-Private-Bucket"
+            Effect: Allow
+            Principal: 
+              AWS: 
+                !ImportValue FireboxLambdaCLIRoleArn
+            Action: s3:GetObject
             Resource: !ImportValue FireboxPrivateBucketResourcesArn
-          - 
-            Effect: "Allow"
-            Principle: "*"
-            Action: 
-              - "s3:ListBucket"
-            Resource: !ImportValue FireboxPrivateBucketArn
       RouteTableIds:
         - !ImportValue FireboxCLIRouteTable
       ServiceName: !Join ['', [com.amazonaws., !Ref 'AWS::Region', .s3]]
