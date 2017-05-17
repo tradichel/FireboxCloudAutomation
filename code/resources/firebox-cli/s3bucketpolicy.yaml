@@ -115,6 +115,6 @@ Resources:
 #          "aws:sourceVpce": "vpce-1a2b3c4d"
 #        }
 #      }
-    }
-  ]
-} 
+#    }
+#  ]
+#} 
