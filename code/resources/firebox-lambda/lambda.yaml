@@ -10,7 +10,7 @@ Resources:
       Description: Firebox Lambda to Execute CLI Commands
       Environment:
         Variables:
-          Test: Value
+          Bucket: !ImportValue FireboxPrivateBucket
       FunctionName: ConfigureFirebox
       Handler: fireboxconfig.configure_firebox
       KmsKeyArn: !ImportValue FireboxKmsKeyArn

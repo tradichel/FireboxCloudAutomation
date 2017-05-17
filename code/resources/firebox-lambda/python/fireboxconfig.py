@@ -10,6 +10,8 @@ def configure_firebox(event, context):
     #####
     s3=boto3.client('s3')
     
+    print("environment variable: " + os.environ['Bucket'])
+
     bucket="firebox-private-cli-bucket-876833387914-us-west-2"
     key="firebox-cli-ec2-key.pem"
 
