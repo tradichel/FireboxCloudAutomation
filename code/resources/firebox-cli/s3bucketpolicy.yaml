@@ -59,8 +59,7 @@ Resources:
           - 
             Sid: Firebox Admin User
             Action:
-              - "s3:PutObject"
-              - "s3:ListBucket"
+              - "s3:*"
             Effect: "Allow"
             Resource: 
               - !ImportValue FireboxPrivateBucketResourcesArn
