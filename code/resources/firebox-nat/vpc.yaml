@@ -15,7 +15,7 @@ Resources:
     Properties:
       CidrBlock: 
         Ref: ParamVPCCidr
-      EnableDnsSupport: 'true'
+      EnableDnsSupport: true
       Tags:
       - Key: Name
         Value: FireboxCloudVPC
@@ -26,4 +26,8 @@ Outputs:
   FireboxVPC:
     Value: !Ref FireboxVPC
     Export:
-      Name: "FireboxVPC"
+      Name: FireboxVPC
+  FireboxVpcCidr:
+    Value: !GetAtt FireboxVPC.CidrBlock
+    Export:
+      Name: FireboxVPCCidr

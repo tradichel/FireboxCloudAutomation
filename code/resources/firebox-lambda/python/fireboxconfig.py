@@ -14,9 +14,9 @@ def configure_firebox(event, context):
     key="firebox-cli-ec2-key.pem"
 
     response = s3.get_object(Bucket=bucket, Key=key) 
-    keycontent = response['Body'].read().decode('utf-8')
-    print("key:")
-    print(keycontent)
+    #keycontent = response['Body'].read().decode('utf-8')
+    #print("key:")
+    #print(keycontent)
     
     #save key to lambda to use for CLI connection
 
@@ -36,15 +36,4 @@ def configure_firebox(event, context):
     #command = ["global-setting","report-data","enable"]
     #print(subprocess.check_output(command, stderr=subprocess.STDOUT))
 
-
-    #random testing...if we got here our code didn't croak
-    what_to_print = "testing..."
-    how_many_times = 3
-
-    # make sure what_to_print and how_many_times values exist
-    if what_to_print and how_many_times > 0:
-        for i in range(0, how_many_times):
-            # formatted string literals are new in Python 3.6
-            print(f"what_to_print: {what_to_print}.")
-    
     return "success"

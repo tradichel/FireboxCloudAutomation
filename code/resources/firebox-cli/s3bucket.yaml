@@ -15,8 +15,6 @@ Resources:
             Id: ExpirationDaysRule
             ExpirationInDays: 7
             Status: Enabled
-            Transitions:
-              - Transition type
   FireboxPrivateBucket:
     Type: "AWS::S3::Bucket"
     Properties: 

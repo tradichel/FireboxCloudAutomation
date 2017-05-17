@@ -89,10 +89,32 @@ Resources:
             Principal: 
               AWS: !ImportValue FireboxLambdaCLIRoleArn
           - 
-            Sid: AllowLambaCLIRoleGet
+            Sid: AllowLambaCLIRoleGetObject
             Action:
               - "s3:ListBucket"
             Effect: "Allow"
             Resource: !ImportValue FireboxPrivateBucketArn
             Principal: 
               AWS: !ImportValue FireboxLambdaCLIRoleArn
+
+
+#restrict access only from S3 endpoint
+#{
+#  "Version": "2012-10-17",
+#  "Id": "Policy1415115909152",
+#  "Statement": [
+#    {
+#      "Sid": "Access-to-specific-VPCE-only",
+#      "Principal": "*",
+#      "Action": "s3:*",
+#      "Effect": "Deny",
+#      "Resource": ["arn:aws:s3:::my_secure_bucket",
+#                   "arn:aws:s3:::my_secure_bucket/*"],
+#      "Condition": {
+#        "StringNotEquals": {
+#          "aws:sourceVpce": "vpce-1a2b3c4d"
+#        }
+#      }
+    }
+  ]
+} 

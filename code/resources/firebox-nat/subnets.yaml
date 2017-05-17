@@ -34,7 +34,24 @@ Resources:
         Value: FireboxPrivateSubnet
       - Key: Stack
         Value: 
-          Ref: ParamStackName
+          !Ref ParamStackName
+  #By Default all inbound/outbound traffic is allowed
+  #through NACLs. 
+  #PrivateSubnetNacl:
+  #  Type: "AWS::EC2::NetworkAcl"
+  #  Properties:
+  #    Tags:
+  #      - Key: Name
+  #        Value: FireboxPrivateSubnetNacl
+  #      - Key: Stack
+  #        Value: 
+  #          !Ref ParamStackName
+  #    VpcId: !ImportValue FireboxVPC
+  #PrivateSubnetNaclAssociation:
+  #  Type: "AWS::EC2::SubnetNetworkAclAssociation"
+  #  Properties:
+  #    SubnetId: !Ref FireboxPrivateSubnet
+  #    NetworkAclId: !Ref FireboxPrivateSubnetNacl 
   FireboxPublicSubnet:
     Type: AWS::EC2::Subnet
     Properties:
@@ -51,7 +68,7 @@ Resources:
         Value: FireboxPublicSubnet
       - Key: Stack
         Value: 
-          Ref: ParamStackName
+          !Ref ParamStackName
   FireboxPrivateRouteTable:
     Type: "AWS::EC2::RouteTable"
     Properties: 
@@ -66,25 +83,25 @@ Resources:
     Type: "AWS::EC2::Route"
     Properties: 
       DestinationCidrBlock: 
-        Ref: ParamAllowedOutCidr
+        !Ref ParamAllowedOutCidr
       GatewayId: 
         !ImportValue FireboxInternetGateway
       RouteTableId: 
-        Ref: FireboxPublicRouteTable
+        !Ref FireboxPublicRouteTable
   FireboxPrivateRouteTableAssociation:
     Type: "AWS::EC2::SubnetRouteTableAssociation"
     Properties: 
       RouteTableId:
-        Ref: FireboxPrivateRouteTable
+        !Ref FireboxPrivateRouteTable
       SubnetId: 
-        Ref: FireboxPrivateSubnet
+        !Ref FireboxPrivateSubnet
   FireboxPublicRouteTableAssociation:
     Type: "AWS::EC2::SubnetRouteTableAssociation"
     Properties: 
       RouteTableId:
-        Ref: FireboxPublicRouteTable
+        !Ref FireboxPublicRouteTable
       SubnetId: 
-        Ref: FireboxPublicSubnet  
+        !Ref FireboxPublicSubnet  
 Outputs:
   FireboxPrivateSubnet:
     Value: !Ref FireboxPrivateSubnet

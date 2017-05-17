@@ -23,7 +23,7 @@ Resources:
   FireboxRolePolicy: 
     Type: "AWS::IAM::Policy"
     Properties: 
-      PolicyName: "FireboxLambdaCLIPolicy"
+      PolicyName: "FireboxLambdaCLIS3Policy"
       PolicyDocument: 
         Version: "2012-10-17"
         Statement: 
