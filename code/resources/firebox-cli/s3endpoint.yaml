@@ -16,13 +16,13 @@ Resources:
         #temp allow all while resolving issues
           - 
             Effect: "Allow"
-            Principal: !ImportValue FireboxCliRole
+            Principal: !ImportValue FireboxLambdaCLIRoleArn
             Action: 
               - "s3:*"
             Resource: !ImportValue FireboxPrivateBucketResourcesArn
           - 
             Effect: "Allow"
-            Principal: !ImportValue FireboxCliRole
+            Principal: !ImportValue FireboxLambdaCLIRoleArn
             Action: 
               - "s3:ListBucket"
             Resource: !ImportValue FireboxPrivateBucketArn
