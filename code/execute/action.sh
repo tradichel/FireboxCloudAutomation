@@ -1,4 +1,4 @@
-#!/bin/sh
+f#!/bin/sh
 action=$1; adminuser=$2; admincidr=$3; adminuserarn=$4
 
 keyname="firebox-cli-ec2-key"
@@ -105,6 +105,15 @@ function get_parameters(){
     if [ "$stack" == "kmskey" ]; then
         echo "--parameters ParameterKey=ParamAdminUserArn,ParameterValue=$adminuserarn";return
     fi    
+
+    if [ "$stack" == "s3endpointegress" ]; then
+        #becuase we cannot use reference prefix lists dynamically
+        #in cloudformation (as far as I can tell) need to use CLI
+        #to get and pass into our S3 endpoint egress rule template
+        aws ec2 describe-prefix-lists > prefixlist.txt  2>&1 
+        prefixlistid=$(./execute/get_value.sh prefixlist.txt "PrefixListId")
+        echo "--parameters ParameterKey=ParamPrefixListId,ParameterValue=$prefixlistid";return
+    fi
 }
 
 function get_ip_parameters(){
@@ -246,6 +255,9 @@ else #create/update
         "s3bucket"
         "clirole"
         "s3bucketpolicy"
+        "s3endpoint"
+        "s3endpointegress"
+
     )
 
     modify_stack $action "cli" stack[@] 

@@ -1,16 +1,24 @@
+from __future__ import print_function
+import boto3
 import os
 import subprocess
 
 def configure_firebox(event, context):
-    what_to_print = "testing..."
-    how_many_times = 3
+    
+    #####
+    # Get SSH Key for Firebox over S3 Endpoint
+    #####
+    s3=boto3.client('s3')
+    
+    bucket="firebox-private-cli-bucket-876833387914-us-west-2"
+    key="firebox-cli-ec2-key.pem"
 
-    # make sure what_to_print and how_many_times values exist
-    if what_to_print and how_many_times > 0:
-        for i in range(0, how_many_times):
-            # formatted string literals are new in Python 3.6
-            print(f"what_to_print: {what_to_print}.")
-        return what_to_print
+    response = s3.get_object(Bucket=bucket, Key=key) 
+    keycontent = response['Body'].read().decode('utf-8')
+    print("key:")
+    print(keycontent)
+    
+    #save key to lambda to use for CLI connection
 
     #####
     # TODO: Connect to Firebox via CLI
@@ -24,9 +32,19 @@ def configure_firebox(event, context):
     # better security to all our customers world wide.
     # http://www.watchguard.com/help/docs/fireware/11/en-US/Content/en-US/basicadmin/global_setting_define_c.html?cshid=1020
     #####   
-    #TODO: currently this is going to break as not conn. to fb.
-    command = ["global-setting","report-data","enable"]
-    print(subprocess.check_output(command, stderr=subprocess.STDOUT))
+  
+    #command = ["global-setting","report-data","enable"]
+    #print(subprocess.check_output(command, stderr=subprocess.STDOUT))
 
-    return None
 
+    #random testing...if we got here our code didn't croak
+    what_to_print = "testing..."
+    how_many_times = 3
+
+    # make sure what_to_print and how_many_times values exist
+    if what_to_print and how_many_times > 0:
+        for i in range(0, how_many_times):
+            # formatted string literals are new in Python 3.6
+            print(f"what_to_print: {what_to_print}.")
+    
+    return "success"

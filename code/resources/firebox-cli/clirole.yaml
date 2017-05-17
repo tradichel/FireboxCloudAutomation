@@ -38,6 +38,16 @@ Resources:
                   - "arn:aws:s3:::"
                   - !ImportValue FireboxPrivateBucket
                   - "/*"
+          - 
+            Effect: "Allow"
+            Action: 
+              - "s3:ListBucket"
+            Resource: 
+              Fn::Join: 
+                - ""
+                - 
+                  - "arn:aws:s3:::"
+                  - !ImportValue FireboxPrivateBucket
       Roles: 
         - 
           !Ref FireboxCliRole

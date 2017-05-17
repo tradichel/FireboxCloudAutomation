@@ -1,5 +1,6 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "Firebox CLI bucket S3 endpoint - NOT DONE"
+Description: "Firebox private config bucket S3 endpoint"
+#http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/vpc-endpoints.html
 Parameters: 
   ParamStackName: 
     Type: String
@@ -7,6 +8,7 @@ Parameters:
     Description: "Name used in resource tags and names"
 Resources:
   FireboxCLIS3Endpoint:
+    #http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-vpcendpoint.html
     Type: "AWS::EC2::VPCEndpoint"
     Properties: 
       PolicyDocument: 
@@ -20,20 +22,17 @@ Resources:
               - 
                 - "arn:aws:s3:::"
                 - !ImportValue FireboxPrivateBucket
-                - "/*"
+                - "/GetObject"
           Principal: 
             AWS:
               !ImportValue FireboxLambdaCLIRoleArn
-          Condition:
-            StringNotEquals": 
-              aws:sourceVpce
-                !ImportValue FireboxVPC
       RouteTableIds:
         - !ImportValue FireboxCLIRouteTable
       ServiceName: !Join ['', [com.amazonaws., !Ref 'AWS::Region', .s3]]
       VpcId: !ImportValue FireboxVPC
+
 Outputs:
   FireboxCLIS3Endpoint:
     Value: !Ref FireboxCLIS3Endpoint
     Export:
-      Name: "FireboxCLIS3Endpoint"
+      Name: FireboxCLIS3Endpoint
