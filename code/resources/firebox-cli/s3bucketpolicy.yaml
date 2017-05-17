@@ -87,8 +87,7 @@ Resources:
             Effect: "Allow"
             Resource: !ImportValue FireboxPrivateBucketResourcesArn
             Principal: 
-              AWS:
-                !ImportValue FireboxLambdaCLIRoleArn
+              AWS: !ImportValue FireboxLambdaCLIRoleArn
           - 
             Sid: AllowLambaCLIRoleGet
             Action:
@@ -96,5 +95,4 @@ Resources:
             Effect: "Allow"
             Resource: !ImportValue FireboxPrivateBucketArn
             Principal: 
-              AWS:
-                !ImportValue FireboxLambdaCLIRoleArn
+              AWS: !ImportValue FireboxLambdaCLIRoleArn
