@@ -17,10 +17,12 @@ Resources:
           - 
             Effect: "Allow"
             Action: 
-              - "s3:*"
+              - "s3:GetObject"
+            Principle: "*"
             Resource: !ImportValue FireboxPrivateBucketResourcesArn
           - 
             Effect: "Allow"
+            Principle: "*"
             Action: 
               - "s3:ListBucket"
             Resource: !ImportValue FireboxPrivateBucketArn
