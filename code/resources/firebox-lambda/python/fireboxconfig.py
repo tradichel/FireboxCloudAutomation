@@ -50,10 +50,11 @@ def configure_firebox(event, context):
     # better security to all our customers world wide.
     # http://www.watchguard.com/help/docs/fireware/11/en-US/Content/en-US/basicadmin/global_setting_define_c.html?cshid=1020
     #####   
-  
+    
     commands = [
         "global-setting report-data enable"
     ]
+
     for command in commands:
         print "Executing {}".format(command)
         stdin , stdout, stderr = c.exec_command(command)
@@ -62,7 +63,5 @@ def configure_firebox(event, context):
 
     return
     {
-        'message' : "Script execution completed. See Cloudwatch logs for complete output"
+        'message' : "Success. See Cloudwatch logs for complete output"
     }
-
-    return "success"
