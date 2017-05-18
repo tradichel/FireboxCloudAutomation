@@ -11,13 +11,14 @@ Resources:
       Environment:
         Variables:
           Bucket: !ImportValue FireboxPrivateBucket
+          FireboxIp: !ImportValue FireboxPrimaryPrivateIpAddress
       FunctionName: ConfigureFirebox
       Handler: fireboxconfig.configure_firebox
       KmsKeyArn: !ImportValue FireboxKmsKeyArn
       MemorySize: 128
       Role: !ImportValue FireboxLambdaCLIRoleArn
       Runtime: python3.6
-      Timeout: 3
+      Timeout: 5
       VpcConfig:
         SecurityGroupIds:
           - !ImportValue FireboxManagementSecurityGroup

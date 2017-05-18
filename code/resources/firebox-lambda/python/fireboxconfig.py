@@ -9,20 +9,32 @@ def configure_firebox(event, context):
     # Get SSH Key for Firebox over S3 Endpoint
     #####
     s3=boto3.client('s3')
-    
     bucket=os.environ['Bucket']
+    fireboxip=os.environ['FireboxIp']
     key="firebox-cli-ec2-key.pem"
 
-    response = s3.get_object(Bucket=bucket, Key=key) 
-    #keycontent = response['Body'].read().decode('utf-8')
-    #print("key:")
-    #print(keycontent)
-    
+    #####
     #save key to lambda to use for CLI connection
+    #####
+    s3.download_file(bucket, key, "/tmp/fb.pem")
 
     #####
-    # TODO: Connect to Firebox via CLI
+    # Change permissions on the key file (more restrictive)
     ###
+    command = ["chmod","700","/tmp/fb.pem"]
+    result=subprocess.check_output(command, stderr=subprocess.STDOUT)
+    result=result.decode('ascii')
+    if (len(result)>0):
+        print(result)
+    
+    #####
+    # Connect to Firebox via CLI
+    ###
+    command = ["ssh","-i","/tmp/fb.pem",fireboxip]
+    result=subprocess.check_output(command, stderr=subprocess.STDOUT)
+    result=result.decode('ascii')
+    if (len(result)>0):
+        print(result) 
 
     #####
     # Turn on WatchGuard feedback data used for troubleshooting 
@@ -33,7 +45,7 @@ def configure_firebox(event, context):
     # http://www.watchguard.com/help/docs/fireware/11/en-US/Content/en-US/basicadmin/global_setting_define_c.html?cshid=1020
     #####   
   
-    #command = ["global-setting","report-data","enable"]
-    #print(subprocess.check_output(command, stderr=subprocess.STDOUT))
+    command = ["global-setting","report-data","enable"]
+    print(subprocess.check_output(command, stderr=subprocess.STDOUT))
 
     return "success"
