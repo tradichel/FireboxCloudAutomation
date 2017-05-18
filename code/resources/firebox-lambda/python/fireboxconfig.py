@@ -2,6 +2,9 @@ from __future__ import print_function
 import boto3
 import os
 import subprocess
+import paramiko
+#referencing this AWS blog post which recommends paramiko for SSH:
+#https://aws.amazon.com/blogs/compute/scheduling-ssh-jobs-using-aws-lambda/
 
 def configure_firebox(event, context):
     
@@ -12,16 +15,17 @@ def configure_firebox(event, context):
     bucket=os.environ['Bucket']
     fireboxip=os.environ['FireboxIp']
     key="firebox-cli-ec2-key.pem"
+    localkeyfile="/tmp/fb.pem"
 
     #####
     #save key to lambda to use for CLI connection
     #####
-    s3.download_file(bucket, key, "/tmp/fb.pem")
+    s3.download_file(bucket, key, localkeyfile)
 
     #####
     # Change permissions on the key file (more restrictive)
     ###
-    command = ["chmod","700","/tmp/fb.pem"]
+    command = ["chmod","700",localkeyfile]
     result=subprocess.check_output(command, stderr=subprocess.STDOUT)
     result=result.decode('ascii')
     if (len(result)>0):
@@ -30,11 +34,13 @@ def configure_firebox(event, context):
     #####
     # Connect to Firebox via CLI
     ###
-    command = ["ssh","-i","/tmp/fb.pem",fireboxip]
-    result=subprocess.check_output(command, stderr=subprocess.STDOUT)
-    result=result.decode('ascii')
-    if (len(result)>0):
-        print(result) 
+    k = paramiko.RSAKey.from_private_key_file(localkeyfile)
+    c = paramiko.SSHClient()
+    c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+    print "Connecting to " + fireboxip
+    c.connect( hostname = fireboxip, username = "ec2-user", pkey = k )
+    print "Connected to " + fireboxip
 
     #####
     # Turn on WatchGuard feedback data used for troubleshooting 
@@ -45,7 +51,18 @@ def configure_firebox(event, context):
     # http://www.watchguard.com/help/docs/fireware/11/en-US/Content/en-US/basicadmin/global_setting_define_c.html?cshid=1020
     #####   
   
-    command = ["global-setting","report-data","enable"]
-    print(subprocess.check_output(command, stderr=subprocess.STDOUT))
+    commands = [
+        "global-setting report-data enable"
+    ]
+    for command in commands:
+        print "Executing {}".format(command)
+        stdin , stdout, stderr = c.exec_command(command)
+        print stdout.read()
+        print stderr.read()
+
+    return
+    {
+        'message' : "Script execution completed. See Cloudwatch logs for complete output"
+    }
 
     return "success"
