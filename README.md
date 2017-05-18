@@ -41,6 +41,9 @@ Before You Run This Script:
     If you are using Windows install a bash shell:
     https://www.howtogeek.com/249966/how-to-install-and-use-the-linux-bash-shell-on-windows-10/
 
+    Install Python
+    https://www.python.org
+
 Now Run The Code (in the code directory):
 
         ./run.sh 

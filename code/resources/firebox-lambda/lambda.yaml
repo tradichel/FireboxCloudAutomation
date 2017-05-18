@@ -1,5 +1,10 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: "Firebox Configuration Lambda"
+Parameters: 
+  ParamVersion: 
+    Type: String
+    Default: "version1"
+    Description: "Unique Version"
 Resources:
   FireboxConfigurationLambda:
     Type: "AWS::Lambda::Function"
@@ -24,3 +29,8 @@ Resources:
           - !ImportValue FireboxManagementSecurityGroup
         SubnetIds:
           - !ImportValue FireboxCLISubnet
+  FireboxLambdaVersion:
+    Type: "AWS::Lambda::Version"
+    Properties:
+      Description: !Ref ParamVersion   
+      FunctionName : !Ref FireboxConfigurationLambda

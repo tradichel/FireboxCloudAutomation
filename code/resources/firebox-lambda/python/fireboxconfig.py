@@ -8,23 +8,22 @@ import paramiko
 
 def configure_firebox(event, context):
     
-    #####
-    # Get SSH Key for Firebox over S3 Endpoint
-    #####
-    s3=boto3.client('s3')
     bucket=os.environ['Bucket']
     fireboxip=os.environ['FireboxIp']
     key="firebox-cli-ec2-key.pem"
     localkeyfile="/tmp/fb.pem"
-
+    s3=boto3.client('s3')
+    
     #####
     #save key to lambda to use for CLI connection
     #####
+    print ('Get SSH key from S3 bucket')
     s3.download_file(bucket, key, localkeyfile)
 
     #####
     # Change permissions on the key file (more restrictive)
     ###
+    print ('change permissions on key')
     command = ["chmod","700",localkeyfile]
     result=subprocess.check_output(command, stderr=subprocess.STDOUT)
     result=result.decode('ascii')
@@ -34,13 +33,16 @@ def configure_firebox(event, context):
     #####
     # Connect to Firebox via CLI
     ###
+    print('initiate key')
     k = paramiko.RSAKey.from_private_key_file(localkeyfile)
+    print('start client')
     c = paramiko.SSHClient()
+    print('set policy')
     c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
-    print "Connecting to " + fireboxip
+    print ("Connecting to " + fireboxip)
     c.connect( hostname = fireboxip, username = "ec2-user", pkey = k )
-    print "Connected to " + fireboxip
+    print ("Connected to " + fireboxip)
 
     #####
     # Turn on WatchGuard feedback data used for troubleshooting 
@@ -56,10 +58,10 @@ def configure_firebox(event, context):
     ]
 
     for command in commands:
-        print "Executing {}".format(command)
+        print ("Executing {}".format(command))
         stdin , stdout, stderr = c.exec_command(command)
-        print stdout.read()
-        print stderr.read()
+        print (stdout.read())
+        print (stderr.read())
 
     return
     {
