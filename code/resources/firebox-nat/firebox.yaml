@@ -55,6 +55,11 @@ Resources:
             Ref: FireboxPublicNetworkInterface
           DeviceIndex: '1'
       KeyName: !Ref ParamKeyName
+      Tags:
+        - Key: Name
+          Value: FireboxCloud
+        - Key: Stack
+          Value: !Ref ParamStackName
 Outputs:
   FireboxPrivateNetworkInterface:
     Value: !Ref FireboxPrivateNetworkInterface

@@ -1,26 +1,15 @@
 #!/bin/sh
+#note: If you want to see how the lambda.zip file was craeted, read this:
+#http://websitenotebook.blogspot.com/2017/05/creating-paramiko-and-cryptography.html
 keyname=$1
 
-#TODO: The lambda function does not seem to update if the zip file changes
-#Need to change the name of the zip perhaps to get the lambda to update
-
 if [ -f ./resources/firebox-lambda/fireboxconfig.zip ]; then rm ./resources/firebox-lambda/fireboxconfig.zip; fi
-if [ -d pyzip ]; then rm -rf pyzip; fi
 
-#make zip folder if it does not exist
-mkdir pyzip
+#make a copy of lambda.zip
+cp lambda.zip fireboxconfig.zip
 
-#copy python file over to zip folder
-cp ./resources/firebox-lambda/python/fireboxconfig.py ./pyzip/fireboxconfig.py
-
-#install dependencies in zip folder 
-#requires python 3.x
-pip install paramiko -t ./pyzip
-
-#zip up the python code for the lambda function
-cd ./pyzip
-zip -r ./../resources/firebox-lambda/fireboxconfig.zip ./* --exclude=*__pycache__*
-cd ..
+#add py file to fireboxconfig.zip
+zip -g fireboxconfig.zip fireboxconig.py
 
 #upload the lambda code to the bucket used by lambda cloudformation file
 bucket=$(./execute/get_output_value.sh "firebox-cli-s3bucket" "FireboxPrivateBucket")
