@@ -6,10 +6,10 @@ keyname=$1
 if [ -f ./resources/firebox-lambda/fireboxconfig.zip ]; then rm ./resources/firebox-lambda/fireboxconfig.zip; fi
 
 #make a copy of lambda.zip
-cp lambda.zip fireboxconfig.zip
+cp ./resources/firebox-lambda/lambda.zip ./resources/firebox-lambda/fireboxconfig.zip
 
 #add py file to fireboxconfig.zip
-zip -g fireboxconfig.zip fireboxconig.py
+zip -g ./resources/firebox-lambda/fireboxconfig.zip ./resources/firebox-lambda/fireboxconfig.py
 
 #upload the lambda code to the bucket used by lambda cloudformation file
 bucket=$(./execute/get_output_value.sh "firebox-cli-s3bucket" "FireboxPrivateBucket")
