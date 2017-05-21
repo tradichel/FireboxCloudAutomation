@@ -3,6 +3,8 @@ import boto3
 import os
 import subprocess
 import paramiko
+import cryptography
+
 #referencing this AWS blog post which recommends paramiko for SSH:
 #https://aws.amazon.com/blogs/compute/scheduling-ssh-jobs-using-aws-lambda/
 
@@ -13,7 +15,7 @@ def configure_firebox(event, context):
     key="firebox-cli-ec2-key.pem"
     localkeyfile="/tmp/fb.pem"
     s3=boto3.client('s3')
-    
+
     #####
     #save key to lambda to use for CLI connection
     #####
@@ -23,8 +25,8 @@ def configure_firebox(event, context):
     #####
     # Change permissions on the key file (more restrictive)
     ###
-    print ('change permissions on key')
-    command = ["chmod","700",localkeyfile]
+    print('change permissions on key')
+    command = ["chmod","400",localkeyfile]
     result=subprocess.check_output(command, stderr=subprocess.STDOUT)
     result=result.decode('ascii')
     if (len(result)>0):
@@ -33,17 +35,12 @@ def configure_firebox(event, context):
     #####
     # Connect to Firebox via CLI
     ###
-    print('initiate key')
     k = paramiko.RSAKey.from_private_key_file(localkeyfile)
-    print('start client')
     c = paramiko.SSHClient()
-    print('set policy')
     c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-
-    print ("Connecting to " + fireboxip)
-    c.connect( hostname = fireboxip, username = "ec2-user", pkey = k )
-    print ("Connected to " + fireboxip)
-
+    print("connect to host")
+    #c.connect( hostname = fireboxip, username = "ec2-user", pkey = k )
+    
     #####
     # Turn on WatchGuard feedback data used for troubleshooting 
     # and security report https://www.watchguard.com/wgrd-resource-center/security-report
@@ -53,17 +50,16 @@ def configure_firebox(event, context):
     # http://www.watchguard.com/help/docs/fireware/11/en-US/Content/en-US/basicadmin/global_setting_define_c.html?cshid=1020
     #####   
     
-    commands = [
-        "global-setting report-data enable"
-    ]
+    #commands = [
+    #    "global-setting report-data enable"
+    #]
 
-    for command in commands:
-        print ("Executing {}".format(command))
-        stdin , stdout, stderr = c.exec_command(command)
-        print (stdout.read())
-        print (stderr.read())
+    #for command in commands:
+    #    print ("Executing {}".format(command))
+    #    stdin , stdout, stderr = c.exec_command(command)
+    #    print (stdout.read())
+    #    print (stderr.read())
 
-    return
-    {
-        'message' : "Success. See Cloudwatch logs for complete output"
-    }
+
+
+    return 'success'
