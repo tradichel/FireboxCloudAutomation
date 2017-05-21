@@ -17,7 +17,7 @@ Resources:
       KmsKeyArn: !ImportValue FireboxKmsKeyArn
       MemorySize: 128
       Role: !ImportValue FireboxLambdaCLIRoleArn
-      Runtime: python3.6
+      Runtime: python2.7
       Timeout: 5
       VpcConfig:
         SecurityGroupIds:
