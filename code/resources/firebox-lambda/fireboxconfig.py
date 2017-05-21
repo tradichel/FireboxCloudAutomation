@@ -21,6 +21,9 @@ def configure_firebox(event, context):
     #####
     print ('Get SSH key from S3 bucket')
     s3.download_file(bucket, key, localkeyfile)
+    f = open(localkeyfile, 'r')
+    test = f.read()
+    print (test)
 
     #####
     # Change permissions on the key file (more restrictive)
@@ -39,7 +42,7 @@ def configure_firebox(event, context):
     c = paramiko.SSHClient()
     c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     print("connect to host")
-    #c.connect( hostname = fireboxip, username = "ec2-user", pkey = k )
+    c.connect( hostname = fireboxip, port = 4118, username = "ec2-user", key_filename = localkeyfile)
     
     #####
     # Turn on WatchGuard feedback data used for troubleshooting 
@@ -50,16 +53,14 @@ def configure_firebox(event, context):
     # http://www.watchguard.com/help/docs/fireware/11/en-US/Content/en-US/basicadmin/global_setting_define_c.html?cshid=1020
     #####   
     
-    #commands = [
-    #    "global-setting report-data enable"
-    #]
+    commands = [
+        "global-setting report-data enable"
+    ]
 
-    #for command in commands:
-    #    print ("Executing {}".format(command))
-    #    stdin , stdout, stderr = c.exec_command(command)
-    #    print (stdout.read())
-    #    print (stderr.read())
-
-
+    for command in commands:
+        print ("Executing {}".format(command))
+        stdin , stdout, stderr = c.exec_command(command)
+        print (stdout.read())
+        print (stderr.read())
 
     return 'success'
