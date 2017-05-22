@@ -1,5 +1,7 @@
 Firebox Cloud Automation
 
+Questions? DM me @TeriRadichel on Twitter.
+
 About This Repo:
 
     Deploy a Firebox Cloud in Your AWS Account.
@@ -74,11 +76,9 @@ Check out what was built and logs in the AWS Console.
 
 To Do:
 
-    Deploy Lambda function / test CLI
-    Network CIDR Parameters / parameters.sh
-    Sample FB configurations
-    Whitelist Private Security Group Rules
-    Add IP address restrictions back to bucket policy
+    Update Lambda Dependencies
+    Network Parameters for CIDRS
+    Other Sample FB configurations
 
 Details:
 
