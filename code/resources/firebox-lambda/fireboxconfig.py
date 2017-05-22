@@ -43,9 +43,10 @@ def configure_firebox(event, context):
     k = paramiko.RSAKey.from_private_key_file(localkeyfile)
     c = paramiko.SSHClient()
     #override check in known hosts file
+    #https://github.com/paramiko/paramiko/issues/340
     c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     print("connecting to " + fireboxip)
-    c.connect( hostname = fireboxip, port = 4118, username = "ec2-user", key_filename = localkeyfile)
+    c.connect( hostname = fireboxip, port = 4118, username = "admin", key_filename = localkeyfile)
     print("connected to " + fireboxip)
 
     #####
