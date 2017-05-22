@@ -45,6 +45,10 @@ def configure_firebox(event, context):
     #override check in known hosts file
     #https://github.com/paramiko/paramiko/issues/340
     c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+    #This will fail until the private interface is set up to accept
+    #these connections. Otherwise need to open up public network
+    #connections and prefer not to do that. More on that later...
     print("connecting to " + fireboxip)
     c.connect( hostname = fireboxip, port = 4118, username = "admin", key_filename = localkeyfile)
     print("connected to " + fireboxip)
