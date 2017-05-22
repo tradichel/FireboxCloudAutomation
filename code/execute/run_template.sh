@@ -10,7 +10,7 @@ if [ "$action" == "" ]; then
 	echo "* Error: Action is required."; exit
 fi
 
-echo "***RUN TEMPLATE***"
+echo "***RUN TEMPLATE: $stack-name ***"
 
 if [ "$action" == "delete" ]; then
 	echo "* aws cloudformation delete-stack --stack-name $stack"

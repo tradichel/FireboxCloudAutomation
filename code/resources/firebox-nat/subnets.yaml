@@ -35,8 +35,11 @@ Resources:
       - Key: Stack
         Value: 
           !Ref ParamStackName
+  ####
   #By Default all inbound/outbound traffic is allowed
-  #through NACLs. 
+  #through Private NACLs. If you want to change that
+  #add the NACL + whatever rules you want below
+  #### 
   #PrivateSubnetNacl:
   #  Type: "AWS::EC2::NetworkAcl"
   #  Properties:
@@ -102,6 +105,63 @@ Resources:
         !Ref FireboxPublicRouteTable
       SubnetId: 
         !Ref FireboxPublicSubnet  
+  ###
+  # For our public subnet we will only open up rules as needed.
+  # For now Deny all
+  ###
+  FireboxPublicSubnetNacl:
+    Type: "AWS::EC2::NetworkAcl"
+    Properties:
+      Tags:
+        - Key: Name
+          Value: FireboxPrivateSubnetNacl
+        - Key: Stack
+          Value: 
+            !Ref ParamStackName
+      VpcId: !ImportValue FireboxVPC
+      Tags:
+        - Key: Name
+          Value: "Firebox Public Subnet Nacl"
+        - Key: Stack
+          Value: 
+            !Ref ParamStackName
+  #Not adding any rules by default. They will be added later as need to allow traffic.
+  #If you would like to add rules uncomment and add ports/protocols below.
+  #http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-network-acl-entry.html#cfn-ec2-networkaclentry-protocol
+  #FireboxPrivateSubnetNaclEntry:
+  #  Type: "AWS::EC2::NetworkAclEntry"
+  #  Properties: 
+  #    CidrBlock: "0.0.0.0/0" #the whole Internet!
+  #    Egress: false #ingress
+  #    NetworkAclId: !Ref FireboxPublicSubnetNacl
+  #    #Protocol -1 = Everything; Port Range is ignored.
+  #    Protocol: -1
+  #    PortRange: #required if protocol is not -1
+  #       ToPort:
+  #       FromPort
+  #    RuleAction : "Deny" #change to allow if needed
+  #    #Rules are processed in order. 
+  #    #http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_ACLs.html
+  #    RuleNumber : "1000" #using 1000 range for ingress rules
+  #FireboxPublicSubnetNaclEntry:
+  #  Type: "AWS::EC2::NetworkAclEntry"
+  #  Properties: 
+  #    CidrBlock: "0.0.0.0/0" #the whole Internet!
+  #    Egress: true #egress
+  #    NetworkAclId: !Ref FireboxPublicSubnetNacl
+  #    #Protocol -1 = Everything; Port Range is ignored.
+  #    Protocol: -1
+  #    PortRange: #required if protocol is not -1
+  #       ToPort:
+  #       FromPort
+  #    RuleAction : "Deny" #change to allow if needed
+  #    RuleNumber : "2000" #using 2000 range for egress rules
+  FireboxPublicSubnetNaclAssociation:
+    Type: "AWS::EC2::SubnetNetworkAclAssociation"
+    Properties:
+      SubnetId: !Ref FireboxPublicSubnet
+      NetworkAclId: !Ref FireboxPublicSubnetNacl 
+
 Outputs:
   FireboxPrivateSubnet:
     Value: !Ref FireboxPrivateSubnet
