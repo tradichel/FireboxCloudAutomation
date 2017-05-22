@@ -2,6 +2,10 @@ Firebox Cloud Automation
 
 Questions? DM me @TeriRadichel on Twitter.
 
+More info: 
+http://websitenotebook.blogspot.com
+https://www.secplicity.org/author/teriradichel/
+
 About This Repo:
 
     Deploy a Firebox Cloud in Your AWS Account.
