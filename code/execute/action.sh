@@ -193,6 +193,9 @@ function wait_to_complete () {
 
 #---Start of Script---#
 #reverse of create on delete
+#todo - fix lambda ENI deletion
+#todo - delete lambda logs
+#todo - delete flow logs
 if [ "$action" == "delete" ]; then
 
     ./execute/delete_files.sh

@@ -49,10 +49,10 @@ Resources:
         Ref: ParamInstanceType
       NetworkInterfaces:
         - NetworkInterfaceId:
-            Ref: FireboxPrivateNetworkInterface
+            Ref: FireboxPublicNetworkInterface
           DeviceIndex: '0'
         - NetworkInterfaceId:
-            Ref: FireboxPublicNetworkInterface
+            Ref: FireboxPrivateNetworkInterface
           DeviceIndex: '1'
       KeyName: !Ref ParamKeyName
       Tags:
