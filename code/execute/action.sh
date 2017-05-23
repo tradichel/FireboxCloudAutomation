@@ -64,6 +64,14 @@ function get_parameters(){
         echo "--parameters ParameterKey=ParamAdminCidr,ParameterValue=$admincidr ParameterKey=ParamAdminUser,ParameterValue=$adminuser";return
     fi
 
+    if [ "$stack" == "clinetwork" ]; then
+        echo "--parameters ParameterKey=ParamAdminCidr,ParameterValue=$admincidr";return
+    fi
+
+    if [ "$stack" == "subnets" ]; then
+        echo "--parameters ParameterKey=ParamAdminCidr,ParameterValue=$admincidr";return
+    fi
+
     if [ "$stack" == "securitygroups" ]; then
 
         #####
@@ -168,7 +176,7 @@ function log_errors(){
         status=$(./execute/get_value.sh $stackname.txt "StackStatus")
         echo "$stack status: $status"
         case "$status" in 
-            UPDATE_COMPLETE|CREATE_COMPLETE|UPDATE_ROLLBACK_COMPLETE)   
+            UPDATE_COMPLETE|CREATE_COMPLETE)   
                 return
                 ;;
             *)

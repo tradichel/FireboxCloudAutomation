@@ -29,8 +29,7 @@ Resources:
       Description: Firebox Public Network Interface
       GroupSet:
         - !ImportValue FireboxPublicSecurityGroup
-      SubnetId: 
-        !ImportValue FireboxPublicSubnet
+      SubnetId: !ImportValue FireboxPublicSubnet
       SourceDestCheck: false
   FireboxPrivateNetworkInterface:
     Type: "AWS::EC2::NetworkInterface"
@@ -38,8 +37,8 @@ Resources:
       Description: Firebox Private Network Interface
       GroupSet: 
         - !ImportValue FireboxPrivateSecurityGroup
-      SubnetId: 
-        !ImportValue FireboxPrivateSubnet
+      SubnetId: !ImportValue FireboxPrivateSubnet
+      SourceDestCheck: false
   Firebox: 
     Type: "AWS::EC2::Instance"
     Properties: 

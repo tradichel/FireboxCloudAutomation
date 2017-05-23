@@ -17,12 +17,19 @@ Parameters:
     Type: String
     Default: "10.0.1.0/24"
     Description: "CIDR block for private subnet"
+  ParamAdminCidr: 
+    Type: String
+    Default: "0.0.0.0/0"
+    Description: "Admin IP Address to allow inbound CLI connections"
+  ParamWebUIPort: 
+    Type: String
+    Default: "8080"
+    Description: "Open port for CLI access to Firebox on port 8080"
 Resources:
   FireboxPrivateSubnet:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId: 
-        !ImportValue FireboxVPC
+      VpcId: !ImportValue FireboxVPC
       CidrBlock: 
         Ref: ParamPrivateSubnetCidr
       AvailabilityZone: 
@@ -33,21 +40,16 @@ Resources:
       - Key: Name
         Value: FireboxPrivateSubnet
       - Key: Stack
-        Value: 
-          !Ref ParamStackName
+        Value: !Ref ParamStackName
   FireboxPrivateRouteTable:
     Type: "AWS::EC2::RouteTable"
     Properties: 
-      VpcId: 
-        !ImportValue FireboxVPC
+      VpcId: !ImportValue FireboxVPC
   FireboxPrivateRouteTableAssociation:
     Type: "AWS::EC2::SubnetRouteTableAssociation"
     Properties: 
-      RouteTableId:
-        !Ref FireboxPrivateRouteTable
-      SubnetId: 
-        !Ref FireboxPrivateSubnet
-
+      RouteTableId: !Ref FireboxPrivateRouteTable
+      SubnetId: !Ref FireboxPrivateSubnet
   ####
   #By Default all inbound/outbound traffic is allowed
   #through PRIVATE NACLs. If you want to change that
@@ -103,8 +105,7 @@ Resources:
   FireboxPublicSubnet:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId: 
-        !ImportValue FireboxVPC
+      VpcId: !ImportValue FireboxVPC
       CidrBlock: 
         Ref: ParamPublicSubnetCidr
       AvailabilityZone: 
@@ -115,33 +116,26 @@ Resources:
       - Key: Name
         Value: FireboxPublicSubnet
       - Key: Stack
-        Value: 
-          !Ref ParamStackName
+        Value: !Ref ParamStackName
   FireboxPublicRouteTable:
     Type: "AWS::EC2::RouteTable"
     Properties: 
-      VpcId: 
-        !ImportValue FireboxVPC
+      VpcId: !ImportValue FireboxVPC
   FireboxPublicInternetGatewayRoute:
     Type: "AWS::EC2::Route"
     Properties: 
-      DestinationCidrBlock: 
-        !Ref ParamAllowedOutCidr
-      GatewayId: 
-        !ImportValue FireboxInternetGateway
-      RouteTableId: 
-        !Ref FireboxPublicRouteTable
+      DestinationCidrBlock: !Ref ParamAllowedOutCidr
+      GatewayId: !ImportValue FireboxInternetGateway
+      RouteTableId: !Ref FireboxPublicRouteTable
 
   FireboxPublicRouteTableAssociation:
     Type: "AWS::EC2::SubnetRouteTableAssociation"
     Properties: 
-      RouteTableId:
-        !Ref FireboxPublicRouteTable
-      SubnetId: 
-        !Ref FireboxPublicSubnet  
+      RouteTableId: !Ref FireboxPublicRouteTable
+      SubnetId: !Ref FireboxPublicSubnet  
   ###
   # For our public subnet we will only open up rules as needed.
-  # For now Deny all by adding no rules to the NACL.
+  # Add Web UI port rule
   ###
   FireboxPublicSubnetNacl:
     Type: "AWS::EC2::NetworkAcl"
@@ -150,53 +144,51 @@ Resources:
         - Key: Name
           Value: FireboxPrivateSubnetNacl
         - Key: Stack
-          Value: 
-            !Ref ParamStackName
+          Value: !Ref ParamStackName
       VpcId: !ImportValue FireboxVPC
       Tags:
         - Key: Name
           Value: "Firebox Public Subnet Nacl"
         - Key: Stack
-          Value: 
-            !Ref ParamStackName
-  #Rules will be added later in separate templates for purposes of
-  #demonstrating different configurations.
-  #If you would like to add rules uncomment and add ports/protocols below.
+          Value: !Ref ParamStackName
+  #Allow Admin CIDR to access Web UI 
   #http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-network-acl-entry.html#cfn-ec2-networkaclentry-protocol
-  #FireboxPublicSubnetIngressNaclEntry:
-  #  Type: "AWS::EC2::NetworkAclEntry"
-  #  Properties: 
-  #    CidrBlock: "0.0.0.0/0" #the whole Internet!
-  #    Egress: false #ingress
-  #    NetworkAclId: !Ref FireboxPublicSubnetNacl
-  #    #Protocol -1 = Everything; Port Range is ignored.
-  #    Protocol: -1
-  #    PortRange: #required if protocol is not -1
-  #       ToPort:
-  #       FromPort
-  #    RuleAction : "Deny" #change to allow if needed
-  #    #Rules are processed in order. 
-  #    #http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_ACLs.html
-  #    RuleNumber : "1000" #using 1000 range for ingress rules
-  #FireboxPublicSubnetEgressNaclEntry:
-  #  Type: "AWS::EC2::NetworkAclEntry"
-  #  Properties: 
-  #    CidrBlock: "0.0.0.0/0" #the whole Internet!
-  #    Egress: true #egress
-  #    NetworkAclId: !Ref FireboxPublicSubnetNacl
-  #    #Protocol -1 = Everything; Port Range is ignored.
-  #    Protocol: -1
-  #    PortRange: #required if protocol is not -1
-  #       ToPort:
-  #       FromPort
-  #    RuleAction : "Deny" #change to allow if needed
-  #    RuleNumber : "2000" #using 2000 range for egress rules
+  #If you must - you could leave this rule out and only add it if required.
+  FireboxPublicSubnetIngressNaclEntry:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties: 
+      CidrBlock: !Ref ParamAdminCidr
+      Egress: false #ingress
+      NetworkAclId: !Ref FireboxPublicSubnetNacl
+      #https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml
+      Protocol: 6
+      PortRange: #required if protocol is not -1
+         From: !Ref ParamWebUIPort
+         To: !Ref ParamWebUIPort
+      RuleAction : "Allow" 
+      #Rules are processed in order. 
+      #http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_ACLs.html
+      RuleNumber : "1001" #using 1000 range for ingress rules
+  FireboxPublicSubnetEgressNaclEntry:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties: 
+      CidrBlock: !Ref ParamAdminCidr
+      Egress: true #egress
+      NetworkAclId: !ImportValue FireboxPublicNacl
+      #https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml
+      Protocol: 6
+      #Ephemeral ports outbound
+      #http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_ACLs.html#VPC_ACLs_Ephemeral_Ports
+      PortRange: 
+         From: 1024
+         To: 65535
+      RuleAction : "Allow" #change to allow if needed
+      RuleNumber : "2001" #using 2000 range for egress rules
   FireboxPublicSubnetNaclAssociation:
     Type: "AWS::EC2::SubnetNetworkAclAssociation"
     Properties:
       SubnetId: !Ref FireboxPublicSubnet
       NetworkAclId: !Ref FireboxPublicSubnetNacl 
-
 Outputs:
   FireboxPrivateSubnet:
     Value: !Ref FireboxPrivateSubnet
@@ -214,3 +206,7 @@ Outputs:
     Value: !Ref FireboxPrivateRouteTable
     Export:
       Name: "FireboxPrivateRouteTable"
+  FireboxPublicNacl:
+    Value: !Ref FireboxPublicSubnetNacl
+    Export:
+      Name: "FireboxPublicNacl"

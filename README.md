@@ -80,6 +80,11 @@ Check out what was built and logs in the AWS Console.
 
 To Do:
 
+    NOTE: The lambda function has some issues right now because
+    the Firebox thinks the IPS are spoofed using the private ENI
+    and connecting to the CLI with Paramiko over SSH.
+    Working with AWS and our team to resolve this issue.
+
     Update Lambda Dependencies
     Network Parameters for CIDRS
     Other Sample FB configurations

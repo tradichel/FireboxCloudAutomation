@@ -44,7 +44,14 @@ Parameters:
   paramwebrepauth5:
     Type: String
     Default: ""
-
+  ParamAdminCidr: 
+    Type: String
+    Default: "0.0.0.0/0"
+    Description: "Admin IP Address to allow inbound CLI connections"
+  ParamWebUIPort: 
+    Type: String
+    Default: "8080"
+    Description: "Open port for CLI access to Firebox on port 8080"
 Conditions:
   #make sure all the IPs exist before we attempt to create
   #rules for them. This handles some, but not all, DNS changes
@@ -79,6 +86,11 @@ Resources:
         IpProtocol: tcp
         FromPort: 443
         ToPort: 443
+      SecurityGroupIngress: 
+      - CidrIp: !Ref ParamAdminCidr
+        IpProtocol: tcp
+        FromPort: 8080
+        ToPort: 8080
       VpcId: !ImportValue FireboxVPC
       Tags:
       - Key: Name
@@ -188,11 +200,10 @@ Resources:
       #If no outbound rule is created the whole Internet is allowed
       #by default. WHY???? 
       SecurityGroupEgress:
-        #TODO: Limit this to VPC CIDR - Get Output
-        CidrIp: 10.0.0.0/8
+        CidrIp: !ImportValue FireboxVPCCidr
         FromPort: !Ref ParamCLIPort
         ToPort: !Ref ParamCLIPort
-        IpProtocol: -1
+        IpProtocol: "tcp"
       VpcId: !ImportValue FireboxVPC
       Tags:
       - Key: Name
@@ -200,7 +211,6 @@ Resources:
       - Key: Stack
         Value: 
           Ref: ParamStackName
-
 Outputs:
   FireboxPublicSecurityGroup:
     Value: !Ref FireboxPublicSecurityGroup
