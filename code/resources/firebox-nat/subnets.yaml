@@ -174,7 +174,7 @@ Resources:
     Properties: 
       CidrBlock: !Ref ParamAdminCidr
       Egress: true #egress
-      NetworkAclId: !ImportValue FireboxPublicNacl
+      NetworkAclId: !Ref FireboxPublicSubnetNacl
       #https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml
       Protocol: 6
       #Ephemeral ports outbound
