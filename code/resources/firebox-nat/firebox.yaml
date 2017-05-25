@@ -3,10 +3,6 @@ Description: "Firebox Cloud"
 Parameters: 
   ParamFireboxAMI:
     Type: String
-    Default: ami-a844d4c8
-    AllowedValues:
-      - ami-ac1798cc #BYOL - c4.large and up
-      - ami-a844d4c8 #Pay as you go - t2.micro or c4.large and up
   ParamInstanceType: 
     Type: String
     Default: t2.micro
@@ -31,13 +27,13 @@ Resources:
         - !ImportValue FireboxPublicSecurityGroup
       SubnetId: !ImportValue FireboxPublicSubnet
       SourceDestCheck: false
-  FireboxPrivateNetworkInterface:
+  FireboxManagementNetworkInterface:
     Type: "AWS::EC2::NetworkInterface"
     Properties: 
-      Description: Firebox Private Network Interface
+      Description: Firebox Management Network Interface
       GroupSet: 
-        - !ImportValue FireboxPrivateSecurityGroup
-      SubnetId: !ImportValue FireboxPrivateSubnet
+        - !ImportValue FireboxManagementSecurityGroup
+      SubnetId: !ImportValue FireboxManagementSubnet
       SourceDestCheck: false
   Firebox: 
     Type: "AWS::EC2::Instance"
@@ -51,7 +47,7 @@ Resources:
             Ref: FireboxPublicNetworkInterface
           DeviceIndex: '0'
         - NetworkInterfaceId:
-            Ref: FireboxPrivateNetworkInterface
+            Ref: FireboxManagementNetworkInterface
           DeviceIndex: '1'
       KeyName: !Ref ParamKeyName
       Tags:
@@ -60,10 +56,10 @@ Resources:
         - Key: Stack
           Value: !Ref ParamStackName
 Outputs:
-  FireboxPrivateNetworkInterface:
-    Value: !Ref FireboxPrivateNetworkInterface
+  FireboxManagementNetworkInterface:
+    Value: !Ref FireboxManagementNetworkInterface
     Export:
-      Name: "FireboxPrivateNetworkInterface"
+      Name: "FireboxManagementNetworkInterface"
   FireboxPublicNetworkInterface:
     Value: !Ref FireboxPublicNetworkInterface
     Export:
@@ -72,7 +68,7 @@ Outputs:
     Value: !Ref Firebox
     Export:
       Name: "Firebox"
-  FireboxPrimaryPrivateIpAddress:
-    Value: !GetAtt FireboxPrivateNetworkInterface.PrimaryPrivateIpAddress
+  FireboxManagementPrivateIpAddress:
+    Value: !GetAtt FireboxManagementNetworkInterface.PrimaryPrivateIpAddress
     Export:
-      Name: "FireboxPrimaryPrivateIpAddress"
+      Name: "FireboxPrimaryManagementIpAddress"

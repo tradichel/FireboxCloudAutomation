@@ -23,4 +23,4 @@ Resources:
         SecurityGroupIds:
           - !ImportValue FireboxManagementSecurityGroup
         SubnetIds:
-          - !ImportValue FireboxCLISubnet
+          - !ImportValue FireboxManagementSubnet

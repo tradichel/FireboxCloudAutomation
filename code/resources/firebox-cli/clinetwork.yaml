@@ -9,45 +9,7 @@ Parameters:
     Type: String
     Default: "4118"
     Description: "Open port for CLI access to Firebox on port 4118"
-  ParamCLISubnetCidr: 
-    Type: String
-    Default: "10.0.2.0/24"
-    Description: "CIDR block for lambda function executing CLI commands"
-  ParamAdminCidr: 
-    Type: String
-    Description: "Admin IP Address to allow inbound CLI connections"
 Resources:
-  #subnet for resources that are allowed to connect for Firebox via CLI
-  #the NACLs could be locked down tighter
-  FireboxCLISubnet:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: 
-        !ImportValue FireboxVPC
-      CidrBlock: 
-        Ref: ParamCLISubnetCidr
-      AvailabilityZone: 
-        !Select 
-          - 1
-          - !GetAZs ""
-      Tags:
-      - Key: Name
-        Value: FireboxCLISubnet
-      - Key: Stack
-        Value: 
-          Ref: ParamStackName
-  FireboxCLIRouteTable:
-    Type: "AWS::EC2::RouteTable"
-    Properties: 
-      VpcId: 
-        !ImportValue FireboxVPC
-  FireboxCLIRouteTableAssociation:
-    Type: "AWS::EC2::SubnetRouteTableAssociation"
-    Properties: 
-      RouteTableId:
-        Ref: FireboxCLIRouteTable
-      SubnetId: 
-        Ref: FireboxCLISubnet
   FireboxManagementSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -77,32 +39,7 @@ Resources:
       IpProtocol: "tcp"
       SourceSecurityGroupId: !Ref FireboxManagementSecurityGroup
       ToPort: !Ref ParamCLIPort
-  #Add NACL rules to public subnet to allowe remote admin access to Firebox
-  FireboxPublicSubnetIngressNaclEntry:
-    Type: "AWS::EC2::NetworkAclEntry"
-    Properties: 
-      CidrBlock: !Ref ParamAdminCidr
-      Egress: false #ingress
-      NetworkAclId: !ImportValue FireboxPublicNacl
-      #https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml
-      Protocol: 6
-      PortRange: 
-        From: !Ref ParamCLIPort
-        To: !Ref ParamCLIPort
-      RuleAction : "Allow" 
-      #Rules are processed in order. 
-      #http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_ACLs.html
-      RuleNumber : "1002" #using 1000 range for ingress rules
-    #Note that Ephemeral Ports were opened up in subnets.yaml for admin cidr
 Outputs:
-  FireboxCLISubnet:
-    Value: !Ref FireboxCLISubnet
-    Export:
-      Name: "FireboxCLISubnet"
-  FireboxCLIRouteTable:
-    Value: !Ref FireboxCLIRouteTable
-    Export:
-      Name: "FireboxCLIRouteTable"
   FireboxManagementSecurityGroup:
     Value: !Ref FireboxManagementSecurityGroup
     Export:

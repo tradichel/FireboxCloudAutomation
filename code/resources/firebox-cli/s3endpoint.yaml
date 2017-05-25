@@ -20,7 +20,7 @@ Resources:
             Action: s3:GetObject
             Resource: !ImportValue FireboxPrivateBucketResourcesArn
       RouteTableIds:
-        - !ImportValue FireboxCLIRouteTable
+        - !ImportValue FireboxManagementRouteTable
       ServiceName: !Join ['', [com.amazonaws., !Ref 'AWS::Region', .s3]]
       VpcId: !ImportValue FireboxVPC
 Outputs:

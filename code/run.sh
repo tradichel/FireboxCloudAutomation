@@ -7,7 +7,7 @@
 # https://github.com/tradichel/FireboxCloudAutomation
 #
 ###############################################################
-echo "Please select:"
+echo "Please select action:"
 select cudl in "Create" "Update" "Delete" "Cancel"; do
     case $cudl in
         Create ) action="create";break;;
@@ -31,7 +31,7 @@ echo "* ------------------------------------------------------"
 if [ "$action" != "delete" ]
 then
     #todo: add this back to bucket policy
-    echo "Enter the IP range allowed to access Firebox S3 bucket (default is 0.0.0.0/0)"
+    echo "Enter the Admin IP range (default is 0.0.0.0/0 < the whole Internet! Please limit to your network.)"
     read adminips
     if [ "$adminips" = "" ]; then adminips="0.0.0.0/0"; fi
 fi
@@ -41,6 +41,17 @@ aws sts  get-caller-identity > "user.txt" 2>&1
 userarn=$(./execute/get_value.sh "user.txt" "Arn")
 account=$(./execute/get_value.sh "user.txt" "Account")
 user=$(cut -d "/" -f 2 <<< $userarn)
+
+
+if [ "$action" != "delete" ]
+then
+
+    echo "Available AMIs:"
+    aws ec2 describe-images --filters "Name=description,Values=firebox*" | grep 'ImageId\|Description' | sed 's/ *\"ImageId\": "//;s/",//' | sed 's/ *\"Description\": "//;s/"//'
+
+    echo "WatchGuard Marketplace AMI from list above:"
+    read ami
+fi
 
 #if user has enters MFA token get a new session.
 echo "MFA token (return to use active session):"
@@ -63,8 +74,8 @@ then
 fi
 
 #if no errors create the stack
-echo "Executing: $action with $user as admin user with ips: $adminips"
-. ./execute/action.sh $action $user $adminips $userarn
+echo "Executing: $action with $user as admin user with ips: $adminips and ami $ami"
+. ./execute/action.sh $action $user $adminips $userarn $ami
 
 rm -f *.txt
 #dt=$(date)

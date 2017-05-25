@@ -1,5 +1,5 @@
 f#!/bin/sh
-action=$1; adminuser=$2; admincidr=$3; adminuserarn=$4
+action=$1; adminuser=$2; admincidr=$3; adminuserarn=$4; ami=$5
 
 keyname="firebox-cli-ec2-key"
 
@@ -57,7 +57,7 @@ function get_parameters(){
     stack=$1
 
     if [ "$stack" == "firebox" ]; then
-        echo "--parameters ParameterKey=ParamKeyName,ParameterValue=$keyname";return
+        echo "--parameters ParameterKey=ParamKeyName,ParameterValue=$keyname ParameterKey=ParamFireboxAMI,ParameterValue=$ami";return
     fi
 
     if [ "$stack" == "s3bucketpolicy" ]; then
@@ -223,6 +223,8 @@ if [ "$action" == "delete" ]; then
     modify_stack $action "lambda" stack[@] 
 
     stack=(
+        "s3endpointegress"
+        "s3endpoint"
         "s3bucketpolicy"
         "clirole"
         "s3bucket"

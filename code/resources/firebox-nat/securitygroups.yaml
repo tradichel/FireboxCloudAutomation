@@ -192,11 +192,11 @@ Resources:
       ToPort: 53
       IpProtocol: udp
 
-  #Private security group associated with Firebox Cloud Private ENI
-  FireboxPrivateSecurityGroup:
+  #Management security group associated with Firebox Cloud Management ENI
+  FireboxManagementEniSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Private Firebox Security Group
+      GroupDescription: Management ENI Firebox Security Group
       #If no outbound rule is created the whole Internet is allowed
       #by default. WHY???? 
       SecurityGroupEgress:
@@ -207,7 +207,7 @@ Resources:
       VpcId: !ImportValue FireboxVPC
       Tags:
       - Key: Name
-        Value: FireboxPrivateSecurityGroup
+        Value: FireboxManagementEniSecurityGroup
       - Key: Stack
         Value: 
           Ref: ParamStackName
@@ -216,8 +216,8 @@ Outputs:
     Value: !Ref FireboxPublicSecurityGroup
     Export:
       Name: FireboxPublicSecurityGroup
-  FireboxPrivateSecurityGroup:
-    Value: !Ref FireboxPrivateSecurityGroup
+  FireboxManagementEniSecurityGroup:
+    Value: !Ref FireboxManagementEniSecurityGroup
     Export:
-      Name: FireboxPrivateSecurityGroup
+      Name: FireboxManagementEniSecurityGroup
 

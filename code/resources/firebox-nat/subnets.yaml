@@ -13,10 +13,10 @@ Parameters:
     Type: String
     Default: "0.0.0.0/0"
     Description: "CIDR block for allowed outbound traffic"
-  ParamPrivateSubnetCidr: 
+  ParamManagementSubnetCidr: 
     Type: String
     Default: "10.0.1.0/24"
-    Description: "CIDR block for private subnet"
+    Description: "CIDR block for Management subnet"
   ParamAdminCidr: 
     Type: String
     Default: "0.0.0.0/0"
@@ -26,59 +26,59 @@ Parameters:
     Default: "8080"
     Description: "Open port for CLI access to Firebox on port 8080"
 Resources:
-  FireboxPrivateSubnet:
+  FireboxManagementSubnet:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !ImportValue FireboxVPC
       CidrBlock: 
-        Ref: ParamPrivateSubnetCidr
+        Ref: ParamManagementSubnetCidr
       AvailabilityZone: 
         !Select 
           - 1
           - !GetAZs ""
       Tags:
       - Key: Name
-        Value: FireboxPrivateSubnet
+        Value: FireboxManagementSubnet
       - Key: Stack
         Value: !Ref ParamStackName
-  FireboxPrivateRouteTable:
+  FireboxManagementRouteTable:
     Type: "AWS::EC2::RouteTable"
     Properties: 
       VpcId: !ImportValue FireboxVPC
-  FireboxPrivateRouteTableAssociation:
+  FireboxManagementRouteTableAssociation:
     Type: "AWS::EC2::SubnetRouteTableAssociation"
     Properties: 
-      RouteTableId: !Ref FireboxPrivateRouteTable
-      SubnetId: !Ref FireboxPrivateSubnet
+      RouteTableId: !Ref FireboxManagementRouteTable
+      SubnetId: !Ref FireboxManagementSubnet
   ####
   #By Default all inbound/outbound traffic is allowed
-  #through PRIVATE NACLs. If you want to change that
+  #through Management NACLs. If you want to change that
   #add the NACL + whatever rules you want below
   #
-  #PrivateSubnetNacl:
+  #ManagementSubnetNacl:
   #  Type: "AWS::EC2::NetworkAcl"
   #  Properties:
   #    Tags:
   #      - Key: Name
-  #        Value: FireboxPrivateSubnetNacl
+  #        Value: FireboxManagementSubnetNacl
   #      - Key: Stack
   #        Value: 
   #          !Ref ParamStackName
   #    VpcId: !ImportValue FireboxVPC
-  #PrivateSubnetNaclAssociation:
+  #ManagementSubnetNaclAssociation:
   #  Type: "AWS::EC2::SubnetNetworkAclAssociation"
   #  Properties:
-  #    SubnetId: !Ref FireboxPrivateSubnet
-  #    NetworkAclId: !Ref FireboxPrivateSubnetNacl
+  #    SubnetId: !Ref FireboxManagementSubnet
+  #    NetworkAclId: !Ref FireboxManagementSubnetNacl
   #Not adding any rules by default. They will be added later as need to allow traffic.
   #If you would like to add rules uncomment and add ports/protocols below.
   #http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-network-acl-entry.html#cfn-ec2-networkaclentry-protocol
-  #FireboxPrivateSubnetIngressNaclEntry:
+  #FireboxManagementSubnetIngressNaclEntry:
   #  Type: "AWS::EC2::NetworkAclEntry"
   #  Properties: 
   #    CidrBlock: "0.0.0.0/0" #the whole Internet!
   #    Egress: false #ingress
-  #    NetworkAclId: !Ref FireboxPrivateSubnetNacl
+  #    NetworkAclId: !Ref FireboxManagementSubnetNacl
   #    #Protocol -1 = Everything; Port Range is ignored.
   #    Protocol: -1
   #    PortRange: #required if protocol is not -1
@@ -88,12 +88,12 @@ Resources:
   #    #Rules are processed in order. 
   #    #http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_ACLs.html
   #    RuleNumber : "1000" #using 1000 range for ingress rules
-  #FireboxPrivateSubnetEgressNaclEntry:
+  #FireboxManagementSubnetEgressNaclEntry:
   #  Type: "AWS::EC2::NetworkAclEntry"
   #  Properties: 
   #    CidrBlock: "0.0.0.0/0" #the whole Internet!
   #    Egress: true #egress
-  #    NetworkAclId: !Ref FireboxPrivateSubnetNacl
+  #    NetworkAclId: !Ref FireboxManagementSubnetNacl
   #    #Protocol -1 = Everything; Port Range is ignored.
   #    Protocol: -1
   #    PortRange: #required if protocol is not -1
@@ -142,7 +142,7 @@ Resources:
     Properties:
       Tags:
         - Key: Name
-          Value: FireboxPrivateSubnetNacl
+          Value: FireboxManagementSubnetNacl
         - Key: Stack
           Value: !Ref ParamStackName
       VpcId: !ImportValue FireboxVPC
@@ -190,10 +190,10 @@ Resources:
       SubnetId: !Ref FireboxPublicSubnet
       NetworkAclId: !Ref FireboxPublicSubnetNacl 
 Outputs:
-  FireboxPrivateSubnet:
-    Value: !Ref FireboxPrivateSubnet
+  FireboxManagementSubnet:
+    Value: !Ref FireboxManagementSubnet
     Export:
-      Name: "FireboxPrivateSubnet"
+      Name: "FireboxManagementSubnet"
   FireboxPublicSubnet:
     Value: !Ref FireboxPublicSubnet
     Export:
@@ -202,10 +202,10 @@ Outputs:
     Value: !Ref FireboxPublicRouteTable
     Export:
       Name: "FireboxPublicRouteTable"
-  FireboxPrivateRouteTable:
-    Value: !Ref FireboxPrivateRouteTable
+  FireboxManagementRouteTable:
+    Value: !Ref FireboxManagementRouteTable
     Export:
-      Name: "FireboxPrivateRouteTable"
+      Name: "FireboxManagementRouteTable"
   FireboxPublicNacl:
     Value: !Ref FireboxPublicSubnetNacl
     Export:
