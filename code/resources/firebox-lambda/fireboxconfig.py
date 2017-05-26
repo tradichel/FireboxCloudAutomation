@@ -32,10 +32,10 @@ def configure_firebox(event, context):
     ###
     #print('change permissions on key')
     #command = ["chmod","400",localkeyfile]
-    #result=subprocess.check_output(command, stderr=subprocess.STDOUT)
-    #result=result.decode('ascii')
-    #if (len(result)>0):
-    #    print(result)
+    result=subprocess.check_output(command, stderr=subprocess.STDOUT)
+    result=result.decode('ascii')
+    if (len(result)>0):
+        print(result)
     
     #####
     # Connect to Firebox via CLI

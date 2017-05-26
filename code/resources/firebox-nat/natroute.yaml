@@ -18,5 +18,5 @@ Resources:
       NetworkInterfaceId: 
         !ImportValue FireboxManagementNetworkInterface
       RouteTableId: 
-        !ImportValue FireboxManagementRouteTable
+       !ImportValue FireboxManagementRouteTable
 

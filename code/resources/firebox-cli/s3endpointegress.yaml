@@ -8,7 +8,6 @@ Parameters:
   ParamPrefixListId:
     Type: String
     Description: "PrefixList ID for S3 endpoint"
-
 Resources:
   #Egress rule for S3 endpoint in CLI Security Group
   #http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-security-group-egress.html
