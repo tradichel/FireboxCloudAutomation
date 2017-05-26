@@ -20,6 +20,16 @@ if [ "$error" != "" ]; then
     echo "Error uploading fireboxconfig.zip: $error"; exit
 fi
 
+#upload bash script with cli commands
+localfile=resources/firebox-lambda/configurefirebox.sh
+remotefile=configurefirebox.sh
+aws s3 cp $localfile s3://$bucket/$remotefile --sse AES256 > uploadsh.txt  2>&1  
+
+error=$(cat upload.txt | grep "error\|Unknown\|path")
+if [ "$error" != "" ]; then
+    echo "Error uploading $localfile: $error"; exit
+fi
+
 #upload EC2 Key Pair
 aws s3 cp $keyname.pem s3://$bucket/$keyname.pem --sse AES256 > upload.txt  2>&1  
 

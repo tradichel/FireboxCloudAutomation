@@ -254,6 +254,7 @@ else #create/update
         "securitygroups"
         "firebox"
         "elasticip"
+        "natroute"
     )
 
     modify_stack $action "nat" stack[@] 
@@ -267,14 +268,6 @@ else #create/update
         "s3endpointegress"
 
     )
-
-    #pllist has to be above nat route in NACL rules
-    ./execute/keypair.sh $action $keyname
-
-    stack=(
-        "natroute"
-    )
-    
 
     modify_stack $action "cli" stack[@] 
 
