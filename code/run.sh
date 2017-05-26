@@ -31,9 +31,22 @@ echo "* ------------------------------------------------------"
 if [ "$action" != "delete" ]
 then
     #todo: add this back to bucket policy
-    echo "Enter the Admin IP range (default is 0.0.0.0/0 < the whole Internet! Please limit to your network.)"
+    echo "Enter the Admin IP range (default is 0.0.0.0/0 < the whole Internet! Please limit to your network. Hint: whatismyip.com + /32)"
     read adminips
     if [ "$adminips" = "" ]; then adminips="0.0.0.0/0"; fi
+
+    
+    echo "* ------------------------------------------------------"
+    echo "Please wait for a list of available Firebox Cloud AMIs..."
+    aws ec2 describe-images --filters "Name=description,Values=firebox*" | grep 'ImageId\|Description' 
+    echo "* ------------------------------------------------------"
+    echo "Choose AMI ID from list above (see readme if no AMIs listed):"
+    read ami
+
+    echo "Instance Type (default c4.large. Can use t2.micro on pay as you go but only has two ENIs):"
+    read instancetype
+    if [ "$instancetype" = "" ]; then instancetype="c4.large"; fi
+
 fi
 
 #get the user information to get an active session with MFA
@@ -41,17 +54,6 @@ aws sts  get-caller-identity > "user.txt" 2>&1
 userarn=$(./execute/get_value.sh "user.txt" "Arn")
 account=$(./execute/get_value.sh "user.txt" "Account")
 user=$(cut -d "/" -f 2 <<< $userarn)
-
-
-if [ "$action" != "delete" ]
-then
-
-    echo "Available AMIs:"
-    aws ec2 describe-images --filters "Name=description,Values=firebox*" | grep 'ImageId\|Description' | sed 's/ *\"ImageId\": "//;s/",//' | sed 's/ *\"Description\": "//;s/"//'
-
-    echo "WatchGuard Marketplace AMI from list above:"
-    read ami
-fi
 
 #if user has enters MFA token get a new session.
 echo "MFA token (return to use active session):"
@@ -74,8 +76,8 @@ then
 fi
 
 #if no errors create the stack
-echo "Executing: $action with $user as admin user with ips: $adminips and ami $ami"
-. ./execute/action.sh $action $user $adminips $userarn $ami
+echo "Executing: $action with $user as admin user with ips: $adminips ami: $ami instancetype: $instancetype" 
+. ./execute/action.sh $action $user $adminips $userarn $ami $instancetype
 
 rm -f *.txt
 #dt=$(date)

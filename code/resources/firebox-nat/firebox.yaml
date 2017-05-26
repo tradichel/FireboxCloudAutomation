@@ -5,18 +5,13 @@ Parameters:
     Type: String
   ParamInstanceType: 
     Type: String
-    Default: t2.micro
-    AllowedValues: 
-      - t2.micro
-      - c4.large
-    Description: Choose an allowed instance type.
+    Description: Allowed instance type for Firebox Cloud AMI.
   ParamStackName: 
     Type: String
     Default: "firebox-trial"
     Description: "Name used in resource tags and names"
   ParamKeyName: 
     Type: String
-    Default: ""
     Description: "EC2 Key Pair name for CLI Commands over SSH"
 Resources:
   FireboxPublicNetworkInterface:
@@ -32,7 +27,7 @@ Resources:
     Properties: 
       Description: Firebox Management Network Interface
       GroupSet: 
-        - !ImportValue FireboxManagementSecurityGroup
+        - !ImportValue FireboxManagementEniSecurityGroup
       SubnetId: !ImportValue FireboxManagementSubnet
       SourceDestCheck: false
   Firebox: 
