@@ -50,6 +50,9 @@ Before You Run This Script:
     Install Python
     https://www.python.org
 
+    Activate The Firebox AMI In Your Account:
+    http://websitenotebook.blogspot.com/2017/05/manually-activating-watchguard-firebox.html
+
 Now Run The Code (in the code directory):
 
         ./run.sh 
@@ -66,9 +69,18 @@ Follow the prompts.
     4) Cancel
     #? 
 
-> Enter the CIDR that is allowed to upload files to your private S3 bucket or hit enter.
+> Enter the CIDR that is allowed to upload files to your private S3 bucket or hit enter. (Hint: For a simple test, you can get your IP at whatismyip.com and add /32 at the end, eg 111.111.111.111/32)
 
     Enter the IP range allowed to access Firebox S3 bucket (default is 0.0.0.0/0)
+
+> Select an AMI. The script will execute a command to produce a list of available AMIs. For example, if I want the Firebox Pay-As-You-Go version 11.12.2 I would enter ami-a844d4c8 at the prompt and hit enter. (If you don't see any then you need to follow the steps above to activate the AMI from the marketplace.)
+
+    Available AMIs:
+    ami-3b4ddd5b 
+    firebox-cloud-11_12_2-526900-byol
+    ami-a844d4c8 
+    firebox-cloud-11_12_2-526900-payasyougo
+    WatchGuard Marketplace AMI from list above:
 
 > Enter an MFA token. Your session lasts 12 hours once created.
 
@@ -80,11 +92,6 @@ Check out what was built and logs in the AWS Console.
 
 To Do:
 
-    NOTE: The lambda function has some issues right now because
-    the Firebox thinks the IPS are spoofed using the private ENI
-    and connecting to the CLI with Paramiko over SSH.
-    Working with AWS and our team to resolve this issue.
-
     Update Lambda Dependencies
     Network Parameters for CIDRS
     Other Sample FB configurations
@@ -92,6 +99,7 @@ To Do:
 Details:
 
     Read the wiki: https://github.com/tradichel/FireboxCloudAutomation/wiki
+    I also post notes here: http://websitenotebook.blogspot.com
 
 More about Firebox Cloud:
 
@@ -109,10 +117,9 @@ More about Firebox Cloud:
 
 Notes:
 
-    - You might want tighter networking rules but this will get you started...
-    - Still need to auto-deploy configuration
-    - One of other possible configurations to be added later
-    - More secure to deploy through automated build system ~ more on that later
+    - eth0 = public, eth1 = managmenet, create other network interfaces for the rest (more soon)
+    - One of other possible configurations to be added later (potentially)
+    - More secure to use automated deployment system (e.g. Jenkins, AWS CodeDeploy) but this works for now
 
 Questions?
 
