@@ -10,13 +10,13 @@ Parameters:
     Default: "4118"
     Description: "Open port for CLI access to Firebox on port 4118"
 Resources:
-  FireboxManagementSecurityGroup:
+  FireboxLambdaSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: "Management Security Group Allowed to Access FB CLI"
+      GroupDescription: "Lambda Security Group Allowed to Access FB CLI"
       SecurityGroupEgress:
       - DestinationSecurityGroupId:
-          !ImportValue FireboxPrivateSecurityGroup
+          !ImportValue FireboxManagementEniSecurityGroup
         IpProtocol: "tcp"
         FromPort: !Ref ParamCLIPort
         ToPort: !Ref ParamCLIPort
@@ -24,7 +24,7 @@ Resources:
         !ImportValue FireboxVPC
       Tags:
       - Key: Name
-        Value: FireboxManagementSecurityGroup
+        Value: FireboxLambdaSecurityGroup
       - Key: Stack
         Value: 
           Ref: ParamStackName 
@@ -35,12 +35,12 @@ Resources:
     Type: "AWS::EC2::SecurityGroupIngress"
     Properties: 
       FromPort: !Ref ParamCLIPort
-      GroupId: !ImportValue FireboxPrivateSecurityGroup
+      GroupId: !ImportValue FireboxManagementEniSecurityGroup
       IpProtocol: "tcp"
-      SourceSecurityGroupId: !Ref FireboxManagementSecurityGroup
+      SourceSecurityGroupId: !Ref FireboxLambdaSecurityGroup
       ToPort: !Ref ParamCLIPort
 Outputs:
   FireboxManagementSecurityGroup:
-    Value: !Ref FireboxManagementSecurityGroup
+    Value: !Ref FireboxLambdaSecurityGroup
     Export:
-      Name: "FireboxManagementSecurityGroup"
+      Name: "FireboxLambdaSecurityGroup"

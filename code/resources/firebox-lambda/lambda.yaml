@@ -11,7 +11,7 @@ Resources:
       Environment:
         Variables:
           Bucket: !ImportValue FireboxPrivateBucket
-          FireboxIp: !ImportValue FireboxPrimaryPrivateIpAddress
+          FireboxIp: !ImportValue FireboxPrimaryManagementIpAddress
       FunctionName: ConfigureFirebox
       Handler: fireboxconfig.configure_firebox
       KmsKeyArn: !ImportValue FireboxKmsKeyArn
@@ -21,6 +21,6 @@ Resources:
       Timeout: 15
       VpcConfig:
         SecurityGroupIds:
-          - !ImportValue FireboxManagementSecurityGroup
+          - !ImportValue FireboxLambdaSecurityGroup
         SubnetIds:
           - !ImportValue FireboxManagementSubnet

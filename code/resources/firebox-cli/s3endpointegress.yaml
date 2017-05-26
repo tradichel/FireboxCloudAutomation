@@ -15,7 +15,7 @@ Resources:
   FireboxCLISGEgressS3Endpoint:
     Type: AWS::EC2::SecurityGroupEgress
     Properties:
-      GroupId: !ImportValue FireboxManagementSecurityGroup
+      GroupId: !ImportValue FireboxLambdaSecurityGroup
       DestinationPrefixListId: !Ref ParamPrefixListId
       IpProtocol: tcp
       ToPort: 443
