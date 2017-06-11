@@ -7,6 +7,24 @@
 # https://github.com/tradichel/FireboxCloudAutomation
 #
 ###############################################################
+
+
+function get_latest_firebox_ami (){
+    owner=679593333241
+    #use the commented out line instead to verify the owner - takes a long time to run
+    #amidesc=$(aws ec2 describe-images --owners $owner --filters "Name=description,Values=firebox*" | grep "Description" | grep "pay" | sort -r | grep -m1 -v "rc" | cut -d ":" -f 2 | sed -e 's/^[[:space:]]*//')
+    amidesc=$(aws ec2 describe-images --filters "Name=description,Values=firebox*" | grep "Description" | grep "pay" | sort -r | grep -m1 -v "rc" | cut -d ":" -f 2 | sed -e 's/^[[:space:]]*//')
+    echo $(get_image "$amidesc" $owner)
+}
+
+
+function get_image(){
+    amidesc="$1"; owner="$2"
+    #use the commented out line instead to verify the owner - takes a long time to run
+    #imageid=$(aws ec2 describe-images --owners $owner --filters "Name=description,Values=$amidesc" | grep ImageId | cut -d ":" -f 2 | sed -e 's/^[[:space:]]*//' -e 's/,//') 
+    imageid=$(aws ec2 describe-images --filters "Name=description,Values=$amidesc" | grep ImageId | cut -d ":" -f 2 | sed -e 's/^[[:space:]]*//' -e 's/,//') 
+    echo $imageid
+}
 echo "Please select action:"
 select cudl in "Create" "Update" "Delete" "Cancel"; do
     case $cudl in
