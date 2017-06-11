@@ -195,6 +195,13 @@ function wait_to_complete () {
     log_errors $stack $action
 }
 
+if [ "$action" == "packetcapture" ]; then
+
+    #run packet capture lambda script 
+    #then exist
+    exit
+fi
+
 #---Start of Script---#
 #reverse of create on delete
 #todo - fix lambda ENI deletion

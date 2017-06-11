@@ -30,12 +30,12 @@ echo "* ------------------------------------------------------"
 
 if [ "$action" != "delete" ]
 then
-    #todo: add this back to bucket policy
-    echo "Enter the Admin IP range (default is 0.0.0.0/0 < the whole Internet! Please limit to your network. Hint: whatismyip.com + /32)"
+   
+    yourip=$(curl -s http://whatismyip.akamai.com/)
+    echo "Enter the Admin IP range (default: $yourip/32 < Your IP based on a query to http://whatismyip.akamai.com/)"
     read adminips
-    if [ "$adminips" = "" ]; then adminips="0.0.0.0/0"; fi
+    if [ "$adminips" = "" ]; then adminips="$yourip/32"; fi
 
-    
     echo "* ------------------------------------------------------"
     echo "Please wait for a list of available Firebox Cloud AMIs..."
     aws ec2 describe-images --filters "Name=description,Values=firebox*" | grep 'ImageId\|Description' 

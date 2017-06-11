@@ -1,4 +1,7 @@
 #!/bin/sh
+script="fireboxconfig.py"
+#script="packetcapture.py"
+
 #note: If you want to see how the lambda.zip file was craeted, read this:
 #http://websitenotebook.blogspot.com/2017/05/creating-paramiko-and-cryptography.html
 keyname=$1
@@ -9,7 +12,7 @@ if [ -f ./resources/firebox-lambda/fireboxconfig.zip ]; then rm ./resources/fire
 cp ./resources/firebox-lambda/lambda.zip ./resources/firebox-lambda/fireboxconfig.zip
 
 #add py file to fireboxconfig.zip
-zip -g -j ./resources/firebox-lambda/fireboxconfig.zip ./resources/firebox-lambda/fireboxconfig.py
+zip -g -j ./resources/firebox-lambda/fireboxconfig.zip ./resources/firebox-lambda/$script
 
 #upload the lambda code to the bucket used by lambda cloudformation file
 bucket=$(./execute/get_output_value.sh "firebox-cli-s3bucket" "FireboxPrivateBucket")
