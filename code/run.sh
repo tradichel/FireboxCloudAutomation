@@ -37,12 +37,15 @@ then
     if [ "$adminips" = "" ]; then adminips="$yourip/32"; fi
 
     echo "* ------------------------------------------------------"
-    echo "Please wait for a list of available Firebox Cloud AMIs..."
-    aws ec2 describe-images --filters "Name=description,Values=firebox*" | grep 'ImageId\|Description' 
+    echo "Retrieving list of Firebox Cloud AMIs..."
+    fireboxami=$(get_latest_firebox_ami)
+    if [ "$fireboxami" = "" ]; then echo "No Firebox AMIs have been activated in your account. Please see README.md"; exit; fi
+    aws ec2 describe-images --filters "Name=description,Values=firebox*" | grep 'ImageId\|Description' | sed 'N;s/\n/ /'
     echo "* ------------------------------------------------------"
-    echo "Choose AMI ID from list above (see readme if no AMIs listed):"
+    echo "Enter Firebox AMI (default: $fireboxami)"
     read ami
-
+    if [ "$ami" = "" ]; then ami="$fireboxami"; fi
+    
     echo "Instance Type (default c4.large. Can use t2.micro on pay as you go but only has two ENIs):"
     read instancetype
     if [ "$instancetype" = "" ]; then instancetype="c4.large"; fi
