@@ -50,10 +50,18 @@ if [ "$action" != "delete" ]
 then
    
     yourip=$(curl -s https://whatismyip.akamai.com/)
-    if ["$yourip" == ""]; then
-        echo "Error retrieving your IP address from whatismyip.akami.com. Try https://www.whatismyip.com. Enter your IP /32 e.g. x.x.x.x/32"
+
+    if [ "$yourip" == "" ]; then 
+        yourip=$(curl -s https://ifconfig.co/ip)
     fi
-    echo "Enter the Admin IP range (default: $yourip/32 < Your IP based on a query to http://whatismyip.akamai.com/)"
+
+    if [ "$yourip" == "" ]; then
+        echo "Error retrieving your IP address from whatismyip.akami.com or https://ifconfig.co/ip. /
+         You can manually visit this site to get your IP if needed: https://www.whatismyip.com: /
+         Enter your IP /32 e.g. x.x.x.x/32 or desired CIDR block"
+    fi
+
+    echo "Enter the Admin IP range (default: $yourip/32)"
     read adminips
     if [ "$adminips" == "" ]; then 
         if [ "$yourip" == "" ]; then
