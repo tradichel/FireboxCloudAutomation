@@ -27,7 +27,7 @@ About This Repo:
 
 Before You Run This Script:
 
-     Create an AWS account:
+    Create an AWS account:
     https://aws.amazon.com (click the button to create an account)
 
     Enable MFA on your user ID that is used to run this script:
