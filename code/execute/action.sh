@@ -280,12 +280,22 @@ else #create/update
 
     ./execute/upload_files.sh $keyname
 
+    #first we need to delete the existing lambda to pick up updates
+    action="delete"
+    stack=(
+        "lambda"
+    )
+    modify_stack $action "lambda" stack[@] 
+
+    #then we can create or update the lambda
+    action="create"
     stack=(
         "kmskey"
         "lambda"
     )
-
     modify_stack $action "lambda" stack[@] 
+
+    ./execute/exec_lambda.sh 
     
     stack=(
         "flowlogsrole" 

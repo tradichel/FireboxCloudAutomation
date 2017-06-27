@@ -46,6 +46,10 @@ echo "* Resources will be created in this region."
 echo "* Switch to this region in console when you login."
 echo "* ------------------------------------------------------"
 
+echo "* Would you like to use all the default options? (Y)"
+read usedefault
+if [ "$usedefault" == "y" ]; then usedefault="Y"; fi
+
 if [ "$action" != "delete" ]
 then
    
@@ -61,10 +65,14 @@ then
          Enter your IP /32 e.g. x.x.x.x/32 or desired CIDR block"
     fi
 
-    echo "Enter the Admin IP range (default: $yourip/32)"
-    read adminips
+    if [ "$usedefault" != "Y" ] || [ "$yourip" == "" ]; then
+        echo "Enter the Admin IP range (default: $yourip/32)"
+        read adminips
+    fi
+
     if [ "$adminips" == "" ]; then 
         if [ "$yourip" == "" ]; then
+
             echo "Must enter Admin IP range allowed to administer Firebox"
             exit
         else
@@ -82,10 +90,10 @@ then
     read ami
     if [ "$ami" = "" ]; then ami="$fireboxami"; fi
     
-    echo "Instance Type (default c4.large. Can use t2.micro on pay as you go but only has two ENIs):"
-    read instancetype
-    if [ "$instancetype" = "" ]; then instancetype="c4.large"; fi
-
+    if [ "$usedefault" != "Y" ]; then
+        echo "Instance Type (See README.md for requirements):"
+        read instancetype
+    fi
 fi
 
 #get the user information to get an active session with MFA
@@ -95,9 +103,11 @@ account=$(./execute/get_value.sh "user.txt" "Account")
 user=$(cut -d "/" -f 2 <<< $userarn)
 
 #if user has enters MFA token get a new session.
-echo "MFA token (return to use active session):"
-read mfatoken
-if [ "$mfatoken" != "" ]
+if [ "$usedefault" != "Y" ]; then
+    echo "MFA token (default: active session, if exists):"
+    read mfatoken
+fi
+if [ "$mfatoken" == "" ]
 then
 
     mfaarn="arn:aws:iam::$account:mfa/$user"
