@@ -45,13 +45,34 @@ def configure_firebox(event, context):
         c.connect( hostname = fireboxip, port = 4118, username = "admin", key_filename = localkeyfile)
         print("connected to " + fireboxip)
 
-        channel = c.invoke_shell()
+       channel = c.invoke_shell()
         command="configure\n"
         channel.send(command)
         time.sleep(3)
+
+        output=channel.recv(2024)
+        print(output)
+
         command="global-setting report-data enable\n"
         channel.send(command)
         time.sleep(3)
+        
+        output=channel.recv(2024)
+        print(output)
+
+        #make Firebox an NTP server
+        #http://www.watchguard.com/help/docs/fireware/11/en-US/Content/en-US/basicadmin/NTP_server_enable_add_c.html
+        command="ntp enable\n"
+        channel.send(command)
+        time.sleep(3)
+
+        output=channel.recv(2024)
+        print(output)
+
+        command="ntp device-as-server enable\n"
+        channel.send(command)
+        time.sleep(3)
+
         output=channel.recv(2024)
         print(output)
 
