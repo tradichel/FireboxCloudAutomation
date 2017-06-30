@@ -4,6 +4,9 @@ Parameters:
   ParamAdminUserArn: 
     Type: String
     Description: "Arn for Admin User"
+  ParamStackName: 
+    Type: String
+    Description: Name used in resource tags and names
 Resources:
   FireboxKmsKey:
     Type: "AWS::KMS::Key"

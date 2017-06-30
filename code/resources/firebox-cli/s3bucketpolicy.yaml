@@ -3,7 +3,6 @@ Description: "Firebox Private Bucket Policy"
 Parameters:
   ParamStackName: 
     Type: String
-    Default: "Firebox-Trial"
     Description: "Stack name used in tags and such"
   ParamAdminUser: 
     Type: String

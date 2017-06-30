@@ -1,7 +1,20 @@
-f#!/bin/sh
-action=$1; adminuser=$2; admincidr=$3; adminuserarn=$4; ami=$5; instanctype=$6
+#!/bin/sh
+action=$1
+adminuser=$2
+admincidr=$3
+adminuserarn=$4
+ami=$5
+instancetype=$6
+linuxami=$7
+publiccidr=$8
+managementcidr=$9 
 
 keyname="firebox-cli-ec2-key"
+lambdafunction="ConfigureFirebox"
+
+#gettig the S3 cidrs is a bit messy so separating this out and doing it 
+#one time for all places it is required
+s3cidrparams=$(./execute/get_s3_ips.sh $region)
 
 #stack = file name less the .yaml extension
 function modify_stack(){
@@ -36,9 +49,10 @@ function run_template () {
         noupdates="$(cat $stackname.txt | grep 'No updates')"
         if [ "$noupdates" != "" ]; then echo "noupdates to stack"; return; fi
 
-        err="$(cat $stackname.txt | grep 'error\|failed')"
+        err="$(cat $stackname.txt | grep 'error\|failed\|Error')"
         if [ "$err" != "" ]; then echo "$err"; exit; fi
         
+        cat $stackname.txt
         wait_to_complete $action $config $stackname
     else
         echo "Something is amiss. Stack output file does not exist: $stackname.txt"
@@ -55,20 +69,21 @@ function stack_exists(){
 
 function get_parameters(){
     stack=$1
+    stackparameter="--parameters ParameterKey=ParamStackName,ParameterValue=firebox-$stack"
 
     if [ "$stack" == "firebox" ]; then
-        echo "--parameters ParameterKey=ParamKeyName,ParameterValue=$keyname ParameterKey=ParamFireboxAMI,ParameterValue=$ami ParameterKey=ParamInstanceType,ParameterValue=$instancetype";return
+        echo "$stackparameter ParameterKey=ParamKeyName,ParameterValue=$keyname ParameterKey=ParamFireboxAMI,ParameterValue=$ami ParameterKey=ParamInstanceType,ParameterValue=$instancetype ";return
     fi
 
     if [ "$stack" == "s3bucketpolicy" ]; then
-        echo "--parameters ParameterKey=ParamAdminCidr,ParameterValue=$admincidr ParameterKey=ParamAdminUser,ParameterValue=$adminuser";return
+        echo "$stackparameter ParameterKey=ParamAdminCidr,ParameterValue=$admincidr ParameterKey=ParamAdminUser,ParameterValue=$adminuser";return
+    fi
+ 
+    if [ "$stack" == "sgssh" ]; then
+        echo "$stackparameter ParameterKey=ParamAdminCidr,ParameterValue=$admincidr";return
     fi
 
-    if [ "$stack" == "subnets" ]; then
-        echo "--parameters ParameterKey=ParamAdminCidr,ParameterValue=$admincidr";return
-    fi
-
-    if [ "$stack" == "securitygroups" ]; then
+    if [ "$stack" == "sgpubliceni" ]; then
 
         #####
         #  
@@ -101,13 +116,13 @@ function get_parameters(){
         parameters="$parameters $(get_ip_parameters 'tdr-fbla-na')"
         parameters="$parameters $(get_ip_parameters 'web.repauth')"
         
-        echo "--parameters $parameters"
+        echo "$stackparameter $parameters ParameterKey=ParamAdminCidr,ParameterValue=$admincidr"
         return
 
     fi 
 
     if [ "$stack" == "kmskey" ]; then
-        echo "--parameters ParameterKey=ParamAdminUserArn,ParameterValue=$adminuserarn";return
+        echo "$stackparameter ParameterKey=ParamAdminUserArn,ParameterValue=$adminuserarn";return
     fi    
 
     if [ "$stack" == "s3endpointegress" ]; then
@@ -116,8 +131,27 @@ function get_parameters(){
         #to get and pass into our S3 endpoint egress rule template
         aws ec2 describe-prefix-lists > prefixlist.txt  2>&1 
         prefixlistid=$(./execute/get_value.sh prefixlist.txt "PrefixListId")
-        echo "--parameters ParameterKey=ParamPrefixListId,ParameterValue=$prefixlistid";return
+        echo "$stackparameter ParameterKey=ParamPrefixListId,ParameterValue=$prefixlistid";return
     fi
+
+    #getting the S3 CIDRS is a bit messy. Putting that in a separate script
+    if [ "$stack" == "sgs3cidrs" ]; then
+        echo "$stackparameter $s3cidrparams";return
+    fi
+
+    if [ "$stack" == "sbpublic" ]; then
+        echo "$stackparameter ParameterKey=ParamPublicSubnetCidr,ParameterValue=$publiccidr ParameterKey=ParamAdminCidr,ParameterValue=$admincidr $s3cidrparams";return
+    fi
+
+    if [ "$stack" == "sbmanagement" ]; then
+        echo "$stackparameter ParameterKey=ParamManagementSubnetCidr,ParameterValue=$managementcidr ParameterKey=ParamManagementSubnetCidr,ParameterValue=$managementcidr ParameterKey=ParamAdminCidr,ParameterValue=$admincidr $s3cidrparams";return
+    fi
+
+    if [ "$stack" == "lambda" ]; then
+        echo "$stackparameter ParameterKey=ParamManagementCidr,ParameterValue=$managementcidr ParameterKey=ParamAdminCidr,ParameterValue=$admincidr";return
+    fi
+
+    echo "$stackparameter"
 }
 
 function get_ip_parameters(){
@@ -195,35 +229,15 @@ function wait_to_complete () {
     log_errors $stack $action
 }
 
-if [ "$action" == "packetcapture" ]; then
-
-    #run packet capture lambda script 
-    #then exist
-    exit
-fi
-
 #---Start of Script---#
-#reverse of create on delete
-#todo - fix lambda ENI deletion
-#todo - delete lambda logs
-#todo - delete flow logs
 if [ "$action" == "delete" ]; then
 
     ./execute/delete_files.sh
-
-    stack=(     
-        "flowlogs"
-        "flowlogsrole"
-    )
-    
-    modify_stack $action "flowlogs" stack[@] 
 
     stack=(
         "lambda"
         "kmskey"
     )
-
-    modify_stack $action "lambda" stack[@] 
 
     stack=(
         "s3endpointegress"
@@ -231,22 +245,27 @@ if [ "$action" == "delete" ]; then
         "s3bucketpolicy"
         "clirole"
         "s3bucket"
-        "clinetwork"
-    )
+     )
 
     modify_stack $action "cli" stack[@] 
 
     stack=(
-        "natroute" 
+        "flowlogs"
+        "flowlogsrole"
         "elasticip"
         "firebox"
-        "securitygroups"
-        "subnets"
+        "sgs3cidrs"
+        "sgssh"
+        "sgmanagementeni"
+        "sgpubliceni"
+        "sbpublic"
+        "sbmanagement"
+        "routetables"
         "internetgateway"
         "vpc"
     )
 
-    modify_stack $action "nat" stack[@] 
+    modify_stack $action "network" stack[@] 
 
     ./execute/keypair.sh $action $keyname
 
@@ -255,29 +274,32 @@ else #create/update
     ./execute/keypair.sh $action $keyname
 
     stack=(
+
         "vpc" 
         "internetgateway"
-        "subnets"
-        "securitygroups"
+        "routetables"
+        "sbmanagement"
+        "sgmanagement"
+        "sbpublic"
+        "sgpubliceni"
+        "sgs3cidrs"
+        "sgssh"
+        "flowlogsrole" 
+        "flowlogs"
         "firebox"
         "elasticip"
-        "natroute"
     )
+    modify_stack $action "network" stack[@] 
 
-    modify_stack $action "nat" stack[@] 
-    
     stack=(
-        "clinetwork"
         "s3bucket"
         "clirole"
         "s3endpoint"
         "s3bucketpolicy"
         "s3endpointegress"
-
     )
-
     modify_stack $action "cli" stack[@] 
-
+    
     ./execute/upload_files.sh $keyname
 
     #first we need to delete the existing lambda to pick up updates
@@ -295,15 +317,9 @@ else #create/update
     )
     modify_stack $action "lambda" stack[@] 
 
-    ./execute/exec_lambda.sh 
+    ./execute/exec_lambda.sh
     
-    stack=(
-        "flowlogsrole" 
-        "flowlogs"
-    )
-
-    modify_stack $action "flowlogs" stack[@] 
-
+    
 fi
 
 

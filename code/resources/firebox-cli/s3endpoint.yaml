@@ -4,9 +4,9 @@ Description: "Firebox private config bucket S3 endpoint"
 Parameters: 
   ParamStackName: 
     Type: String
-    Default: "firebox-trial"
     Description: "Name used in resource tags and names"
 Resources:
+  
   FireboxCLIS3Endpoint:
     #http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-vpcendpoint.html
     Type: "AWS::EC2::VPCEndpoint"
@@ -18,11 +18,15 @@ Resources:
             Effect: Allow
             Principal: "*"
             Action: s3:GetObject
-            Resource: !ImportValue FireboxPrivateBucketResourcesArn
+            #going to protect every bucket in this account with an S3 endpoint
+            #this has some networking implications that will be addressed in blog
+            #posts on websitenotebook.blogspot.com 
+            Resource: "*"
       RouteTableIds:
         - !ImportValue FireboxManagementRouteTable
       ServiceName: !Join ['', [com.amazonaws., !Ref 'AWS::Region', .s3]]
       VpcId: !ImportValue FireboxVPC
+
 Outputs:
   FireboxCLIS3Endpoint:
     Value: !Ref FireboxCLIS3Endpoint

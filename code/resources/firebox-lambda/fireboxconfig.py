@@ -17,11 +17,17 @@ def configure_firebox(event, context):
     
     bucket=os.environ['Bucket']
     fireboxip=os.environ['FireboxIp']
+    managementsubnetcidr=os.environ['ManagementCidr']
     key="firebox-cli-ec2-key.pem"
     localkeyfile="/tmp/fb.pem"
     s3=boto3.client('s3')
     
-
+    ###
+    #turn on detailed request logging to troubleshoot
+    #S3 endpoint connection errors
+    ###
+    #boto3.set_stream_logger(name='botocore')
+    
     #####
     #save key to lambda to use for CLI connection
     #####
@@ -33,7 +39,8 @@ def configure_firebox(event, context):
     ###
     k = paramiko.RSAKey.from_private_key_file(localkeyfile)
     c = paramiko.SSHClient()
-    
+
+    managementsubnetcidr=""
 
     try:
 
@@ -45,7 +52,8 @@ def configure_firebox(event, context):
         c.connect( hostname = fireboxip, port = 4118, username = "admin", key_filename = localkeyfile)
         print("connected to " + fireboxip)
 
-       channel = c.invoke_shell()
+        channel = c.invoke_shell()
+
         command="configure\n"
         channel.send(command)
         time.sleep(3)
@@ -76,6 +84,64 @@ def configure_firebox(event, context):
         output=channel.recv(2024)
         print(output)
 
+        #need to figure out how to create a new policy-type
+        #command="policy-type http protocol tcp 80\n"
+        #channel.send(command)
+        #time.sleep(3)
+        #output=channel.recv(2024)
+        #print(output)
+        
+        command="policy\n"
+        channel.send(command)
+        time.sleep(3)
+
+        output=channel.recv(2024)
+        print(output)
+
+        command="rule http-out\n"
+        channel.send(command)
+        time.sleep(3)
+
+        output=channel.recv(2024)
+        print(output)
+
+        #allow all since AWS public NACL rules only allow out to S3 cidrs
+        command="policy-type HTTP-proxy from alias Any-Trusted to alias Any-External\n"
+        channel.sendall(command)
+        time.sleep(3)
+
+        output=channel.recv(2024)
+        print(output)
+
+        command="apply\n"
+        channel.send(command)
+        time.sleep(3)
+
+        output=channel.recv(2024)
+        print(output)
+
+        command="exit\n"
+        channel.send(command)
+        time.sleep(3)
+
+        output=channel.recv(2024)
+        print(output)
+
+        command="rule 443-out\n"
+        channel.send(command)
+        time.sleep(3)
+
+        output=channel.recv(2024)
+        print(output)
+
+        #allow all since AWS public NACL rules only allow out to S3 cidrs
+        command="policy-type HTTPS-proxy from alias Any-Trusted to alias Any-External\n"
+        channel.send(command)
+        time.sleep(3)
+
+        output=channel.recv(2024)
+        print(output)
+
         command="apply\n"
         channel.send(command)
         time.sleep(3)
@@ -89,7 +155,7 @@ def configure_firebox(event, context):
 
         output=channel.recv(2024)
         print(output)
-        
+
     finally:
         if channel:
             channel.close()

@@ -3,7 +3,6 @@ Description: "Firebox private config bucket S3 endpoint egresss rule"
 Parameters: 
   ParamStackName: 
     Type: String
-    Default: "firebox-trial"
     Description: "Name used in resource tags and names"
   ParamPrefixListId:
     Type: String
@@ -14,7 +13,7 @@ Resources:
   FireboxCLISGEgressS3Endpoint:
     Type: AWS::EC2::SecurityGroupEgress
     Properties:
-      GroupId: !ImportValue FireboxLambdaSecurityGroup
+      GroupId: !ImportValue FireboxManagementSecurityGroup
       DestinationPrefixListId: !Ref ParamPrefixListId
       IpProtocol: tcp
       ToPort: 443

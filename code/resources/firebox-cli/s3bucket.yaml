@@ -1,5 +1,9 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: "Firebox Private Bucket for Sensitive Data"
+Parameters: 
+  ParamStackName: 
+    Type: String
+    Description: "Name used in resource tags and names"
 Resources:
   #Bucket for storing bucket access logs
   FireboxLogBucket:

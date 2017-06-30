@@ -1,7 +1,10 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: "Firebox Lambda CLI Role"
+Parameters: 
+  ParamStackName: 
+    Type: String
+    Description: "Name used in resource tags and names"
 Resources:
-
   FireboxCliRole: 
     Type: "AWS::IAM::Role"
     Properties: 
@@ -14,6 +17,7 @@ Resources:
             Principal: 
               Service: 
                 - "lambda.amazonaws.com"
+                - "ec2.amazonaws.com"
             Action: 
               - "sts:AssumeRole"
       Path: "/"
