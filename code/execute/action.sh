@@ -319,7 +319,6 @@ else #create/update
 
     ./execute/exec_lambda.sh
     
-    
 fi
 
 
