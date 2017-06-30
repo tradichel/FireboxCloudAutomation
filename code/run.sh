@@ -107,6 +107,7 @@ if [ "$usedefault" != "Y" ]; then
     echo "MFA token (default: active session, if exists):"
     read mfatoken
 fi
+
 if [ "$mfatoken" == "" ]
 then
 

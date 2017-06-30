@@ -76,6 +76,20 @@ def configure_firebox(event, context):
         output=channel.recv(2024)
         print(output)
 
+        command="apply\n"
+        channel.send(command)
+        time.sleep(3)
+
+        output=channel.recv(2024)
+        print(output)
+    
+        command="exit\n"
+        channel.send(command)
+        time.sleep(3)
+
+        output=channel.recv(2024)
+        print(output)
+        
     finally:
         if channel:
             channel.close()
