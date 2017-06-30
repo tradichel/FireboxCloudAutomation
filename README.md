@@ -2,25 +2,15 @@ Firebox Cloud Automation
 
 Questions? DM me @TeriRadichel on Twitter.
 
-More info: 
-
-http://websitenotebook.blogspot.com
-
-https://www.secplicity.org/author/teriradichel/?utm_source=teriradichel&utm_medium=github&utm_campaign=gh
-
-https://www.slideshare.net/TeriRadichel
-
-AWS Network Security:
-https://youtu.be/DSptV0km1aY
-
 About This Repo:
 
     Deploy a Firebox Cloud in Your AWS Account.
 
     Using bash for people familiar with it. 
 
-    Pay As You Go With 30 day trial - supports t2.micro, c4.large and up:
+    Pay As You Go With 30 day trial - supports t2.micro*, c4.large and up:
     https://aws.amazon.com/marketplace/pp/B06XJ9YTMF?utm_source=teriradichel&utm_medium=Twitter&utm_campaign=gh
+    * Use C4.large for more than two network interfaces
 
     BYOL - supports c4.large and up: 
     https://aws.amazon.com/marketplace/pp/B06XJ9NQY3?utm_source=teriradichel&utm_medium=Twitter&utm_campaign=gh
@@ -93,6 +83,7 @@ View The Results:
     Watch the screen for updates.
 
     Log into the console to see that actions were successful
+
 More about Firebox Cloud:
 
     Set Up Firebox Cloud:
@@ -107,6 +98,13 @@ More about Firebox Cloud:
     Some resellers sell on Amazon:
     https://www.amazon.com/s/ref=nb_sb_noss_1?url=search-alias%3Daps&field-keywords=watchguard&utm_source=teriradichel&&utm_medium=gh&utm_campaign=gh
 
-Questions?
+More info about author and code: 
 
-    @teriradichel
+    http://websitenotebook.blogspot.com
+
+    https://www.secplicity.org/author/teriradichel/?utm_source=teriradichel&utm_medium=github&utm_campaign=gh
+
+    https://www.slideshare.net/TeriRadichel
+
+    AWS Network Security:
+    https://youtu.be/DSptV0km1aY
