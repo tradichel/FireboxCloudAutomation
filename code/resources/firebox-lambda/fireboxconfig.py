@@ -84,77 +84,8 @@ def configure_firebox(event, context):
         output=channel.recv(2024)
         print(output)
 
-        #need to figure out how to create a new policy-type
-        #command="policy-type http protocol tcp 80\n"
-        #channel.send(command)
-        #time.sleep(3)
-        #output=channel.recv(2024)
-        #print(output)
-        
-        command="policy\n"
-        channel.send(command)
-        time.sleep(3)
-
-        output=channel.recv(2024)
-        print(output)
-
-        command="rule http-out\n"
-        channel.send(command)
-        time.sleep(3)
-
-        output=channel.recv(2024)
-        print(output)
-
-        #allow all since AWS public NACL rules only allow out to S3 cidrs
-        command="policy-type HTTP-proxy from alias Any-Trusted to alias Any-External\n"
-        channel.sendall(command)
-        time.sleep(3)
-
-        output=channel.recv(2024)
-        print(output)
-
-        command="apply\n"
-        channel.send(command)
-        time.sleep(3)
-
-        output=channel.recv(2024)
-        print(output)
-
-        command="exit\n"
-        channel.send(command)
-        time.sleep(3)
-
-        output=channel.recv(2024)
-        print(output)
-
-        command="rule 443-out\n"
-        channel.send(command)
-        time.sleep(3)
-
-        output=channel.recv(2024)
-        print(output)
-
-        #allow all since AWS public NACL rules only allow out to S3 cidrs
-        command="policy-type HTTPS-proxy from alias Any-Trusted to alias Any-External\n"
-        channel.send(command)
-        time.sleep(3)
-
-        output=channel.recv(2024)
-        print(output)
-
-        command="apply\n"
-        channel.send(command)
-        time.sleep(3)
-
-        output=channel.recv(2024)
-        print(output)
-    
-        command="exit\n"
-        channel.send(command)
-        time.sleep(3)
-
-        output=channel.recv(2024)
-        print(output)
+        #at this point can configure web servers to use 
+        #firebox for NTP server
 
     finally:
         if channel:
