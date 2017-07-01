@@ -265,7 +265,7 @@ if [ "$action" == "delete" ]; then
         "sbmanagement"
         "sgmanagement"
         "sgmanagementeni"
-        "routetables"
+        ∂"routetables"
         "internetgateway"
         "vpc"
     )
