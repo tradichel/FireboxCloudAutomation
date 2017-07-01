@@ -207,19 +207,21 @@ function log_errors(){
         echo "$stack status: $status"
         case "$status" in 
             UPDATE_COMPLETE|CREATE_COMPLETE)   
-                return
+                if [ "$action" != "delete" ]; then
+                    return
+                fi
                 ;;
             *)
-                cat $stackname.txt
-                aws cloudformation describe-stack-events --stack-name $stackname | grep "ResourceStatusReason"
-                echo "* ---- What's the problem? ---"
-                echo "* Stack $action failed."
-                echo "* See the details above which can also be found in the CloudFormation console"
-                echo "* ----------------------------"
-                exit
-                ;;
-          *)
         esac
+
+        cat $stackname.txt
+        aws cloudformation describe-stack-events --stack-name $stackname | grep "ResourceStatusReason"
+        echo "* ---- What's the problem? ---"
+        echo "* Stack $action failed."
+        echo "* See the details above which can also be found in the CloudFormation console"
+        echo "* ----------------------------"
+        exit
+        
     fi
 }
 
@@ -238,6 +240,8 @@ if [ "$action" == "delete" ]; then
         "lambda"
         "kmskey"
     )
+
+    modify_stack $action "lambda" stack[@] 
 
     stack=(
         "s3endpointegress"
