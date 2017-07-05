@@ -234,8 +234,6 @@ function wait_to_complete () {
 #---Start of Script---#
 if [ "$action" == "delete" ]; then
 
-    ./execute/delete_files.sh
-    
     #delete lambda ENI
     ./execute/delete_lambda_eni.sh
 
@@ -246,6 +244,8 @@ if [ "$action" == "delete" ]; then
 
     modify_stack $action "lambda" stack[@] 
 
+    ./execute/delete_files.sh
+    
     stack=(
         "s3endpointegress"
         "s3bucketpolicy"
