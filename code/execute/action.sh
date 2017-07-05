@@ -267,8 +267,7 @@ if [ "$action" == "delete" ]; then
         "sbpublic"
         "sbmanagement"
         "sgmanagement"
-        "sgmanagementeni"
-        ∂"routetables"
+        "routetables"
         "internetgateway"
         "vpc"
     )
@@ -288,7 +287,6 @@ else #create/update
         "routetables"
         "sbmanagement"
         "sgmanagement"
-        "sgmanagementeni"
         "sbpublic"
         "sgpubliceni"
         "sgs3cidrs"

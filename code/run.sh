@@ -58,7 +58,7 @@ done
 
 if [ "$action" != "delete" ]; then
 
-    defaultinstancetype="c4.large"
+    defaultinstancetype="t2.micro"
     defaultpubliccidr="10.0.0.0/24"
     defaultmanagementcidr="10.0.1.0/24"
     defaultwebcidr="10.0.2.0/24"
