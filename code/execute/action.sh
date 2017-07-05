@@ -331,7 +331,7 @@ else #create/update
     aws ec2 wait instance-status-ok --instance-ids $fireboxinstanceid
     echo "* firebox instance running"
 
-    #./execute/exec_lambda.sh
+    ./execute/exec_lambda.sh
     
 fi
 
