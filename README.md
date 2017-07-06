@@ -1,5 +1,5 @@
 # Firebox Cloud Automation
-https://www.secplicity.org/2017/07/03/automate-deployment-watchguard-firebox-cloud-aws/?utm_source=teriradichel&utm_medium=GitHub
+https://www.secplicity.org/2017/07/03/automate-deployment-watchguard-firebox-cloud-aws/?utm_source=teriradichel&utm_medium=gh
 
 Questions? DM me @TeriRadichel on Twitter.
 
@@ -108,7 +108,7 @@ Code Blog:
 http://websitenotebook.blogspot.com
 
 Secplicity:
-https://www.secplicity.org/author/teriradichel/?utm_source=teriradichel&utm_medium=github
+https://www.secplicity.org/author/teriradichel/?utm_source=teriradichel&utm_medium=gh
 
 SlideShare:
 https://www.slideshare.net/TeriRadichel
