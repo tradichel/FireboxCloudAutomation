@@ -1,9 +1,9 @@
-Firebox Cloud Automation
+# Firebox Cloud Automation
 https://www.secplicity.org/2017/07/03/automate-deployment-watchguard-firebox-cloud-aws/?utm_source=teriradichel&utm_medium=GitHub
 
 Questions? DM me @TeriRadichel on Twitter.
 
-About This Repo:
+## About This Repo:
 
     Deploy a Firebox Cloud in Your AWS Account.
 
@@ -16,7 +16,7 @@ About This Repo:
     BYOL - supports c4.large and up: 
     https://aws.amazon.com/marketplace/pp/B06XJ9NQY3?utm_source=teriradichel&utm_medium=Twitter&utm_campaign=gh
 
-Before You Run This Script:
+## Before You Run This Script:
 
     Create an AWS account:
     https://aws.amazon.com (click the button to create an account)
@@ -46,7 +46,7 @@ Before You Run This Script:
     Follow AWS IAM Best Practices (like MFA)
     http://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html
 
-Run the code:
+## Run the code:
 
     Log into the console using MFA.
 
@@ -79,33 +79,39 @@ Run the code:
     To delete all the resources run the script again and choose delete.
 
 
-View The Results:
+## View The Results:
 
     Watch the screen for updates.
 
     Log into the console to see that actions were successful
 
-More about Firebox Cloud:
+## More about Firebox Cloud:
 
-    Set Up Firebox Cloud:
-    https://www.watchguard.com/help/docs/fireware/11/en-US/Content/en-US/firebox_cloud/fb_cloud_help_intro.html
+Set Up Firebox Cloud:
+https://www.watchguard.com/help/docs/fireware/11/en-US/Content/en-US/firebox_cloud/fb_cloud_help_intro.html
 
-    Latest Firebox Documentation:
-    https://www.watchguard.com/wgrd-help/documentation/xtm
+Latest Firebox Documentation:
+https://www.watchguard.com/wgrd-help/documentation/xtm
     
-    Contact a WatchGuard reseller:
-    http://www.watchguard.com/wgrd-resource-center/how-to-buy?utm_source=teriradichel&utm_medium=gh&utm_campaign=gh
+Contact a WatchGuard reseller:
+http://www.watchguard.com/wgrd-resource-center/how-to-buy?utm_source=teriradichel&utm_medium=gh&utm_campaign=gh
 
-    Some resellers sell on Amazon:
-    https://www.amazon.com/s/ref=nb_sb_noss_1?url=search-alias%3Daps&field-keywords=watchguard&utm_source=teriradichel&&utm_medium=gh&utm_campaign=gh
+Some resellers sell on Amazon:
+https://www.amazon.com/s/ref=nb_sb_noss_1?url=search-alias%3Daps&field-keywords=watchguard&utm_source=teriradichel&&utm_medium=gh&utm_campaign=gh
 
-More info about author and code: 
+## More info about author and code: 
 
-    http://websitenotebook.blogspot.com
+@teriradichel
+https://twitter.com/teriradichel
 
-    https://www.secplicity.org/author/teriradichel/?utm_source=teriradichel&utm_medium=github&utm_campaign=gh
+Code Blog:
+http://websitenotebook.blogspot.com
 
-    https://www.slideshare.net/TeriRadichel
+Secplicity:
+https://www.secplicity.org/author/teriradichel/?utm_source=teriradichel&utm_medium=github&utm_campaign=gh
 
-    AWS Network Security:
-    https://youtu.be/DSptV0km1aY
+SlideShare:
+https://www.slideshare.net/TeriRadichel
+
+AWS Network Security Meet Up Video:
+https://youtu.be/DSptV0km1aY
