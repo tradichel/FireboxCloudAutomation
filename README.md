@@ -10,11 +10,11 @@ Questions? DM me @TeriRadichel on Twitter.
     Using bash for people familiar with it. 
 
     Pay As You Go With 30 day trial - supports t2.micro*, c4.large and up:
-    https://aws.amazon.com/marketplace/pp/B06XJ9YTMF?utm_source=teriradichel&utm_medium=Twitter&utm_campaign=gh
+    https://aws.amazon.com/marketplace/pp/B06XJ9YTMF?utm_source=teriradichel&utm_medium=gh
     * Use C4.large for more than two network interfaces
 
     BYOL - supports c4.large and up: 
-    https://aws.amazon.com/marketplace/pp/B06XJ9NQY3?utm_source=teriradichel&utm_medium=Twitter&utm_campaign=gh
+    https://aws.amazon.com/marketplace/pp/B06XJ9NQY3?utm_source=teriradichel&utm_medium=gh
 
 ## Before You Run This Script:
 
@@ -94,10 +94,10 @@ Latest Firebox Documentation:
 https://www.watchguard.com/wgrd-help/documentation/xtm
     
 Contact a WatchGuard reseller:
-http://www.watchguard.com/wgrd-resource-center/how-to-buy?utm_source=teriradichel&utm_medium=gh&utm_campaign=gh
+http://www.watchguard.com/wgrd-resource-center/how-to-buy?utm_source=teriradichel&utm_medium=gh
 
 Some resellers sell on Amazon:
-https://www.amazon.com/s/ref=nb_sb_noss_1?url=search-alias%3Daps&field-keywords=watchguard&utm_source=teriradichel&&utm_medium=gh&utm_campaign=gh
+https://www.amazon.com/s/ref=nb_sb_noss_1?url=search-alias%3Daps&field-keywords=watchguard&utm_source=teriradichel&&utm_medium=gh
 
 ## More info about author and code: 
 
@@ -108,7 +108,7 @@ Code Blog:
 http://websitenotebook.blogspot.com
 
 Secplicity:
-https://www.secplicity.org/author/teriradichel/?utm_source=teriradichel&utm_medium=github&utm_campaign=gh
+https://www.secplicity.org/author/teriradichel/?utm_source=teriradichel&utm_medium=github
 
 SlideShare:
 https://www.slideshare.net/TeriRadichel
