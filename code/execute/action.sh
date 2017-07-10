@@ -234,10 +234,16 @@ function wait_to_complete () {
 #---Start of Script---#
 if [ "$action" == "delete" ]; then
 
+    #lambda may take up to 40 minutes to delete waiting
+    #for ENI to delete:
+    #http://websitenotebook.blogspot.com/2017/07/cloudformation-wont-delete-lambda-or.html
     #delete lambda ENI
-    #this code has issues...fixing...
+    #this code has issues...AWS does not provide a good
+    #way to get a handle on the lambda ENI
     #./execute/delete_lambda_eni.sh
 
+    #The reason deleting the ENI is because CloudFormation
+    #doesn't otherwise update the lambda function python code
     stack=(
         "lambda"
         "kmskey"
