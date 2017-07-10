@@ -40,8 +40,6 @@ def configure_firebox(event, context):
     k = paramiko.RSAKey.from_private_key_file(localkeyfile)
     c = paramiko.SSHClient()
 
-    managementsubnetcidr=""
-
     try:
 
         #override check in known hosts file

@@ -235,7 +235,8 @@ function wait_to_complete () {
 if [ "$action" == "delete" ]; then
 
     #delete lambda ENI
-    ./execute/delete_lambda_eni.sh
+    #this code has issues...fixing...
+    #./execute/delete_lambda_eni.sh
 
     stack=(
         "lambda"
